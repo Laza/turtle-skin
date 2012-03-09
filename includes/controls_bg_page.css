@@ -1,0 +1,9 @@
+.gallery .navigation nav,
+.no-rgba .gallery .navigation nav {
+	background-color:transparent;
+	background-image:url(bg1.jpg);
+	background-position:center center;
+}
+.gallery .navigation nav a {
+	background-image:url(controls_w.png);	
+}

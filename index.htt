@@ -1,0 +1,70 @@
+<ja:include page="page-header.inc" />
+				
+			<%-- Iterate through folders and images --%>
+			
+				<%-- Folders --%>
+				<ja:if test="${folderCount}" not value="0"><div class="folders">
+					<ul class="clearfix"><% i = 0; %><ja:fileiterator dirs>
+					<%	updateLocal();
+						out.print("<li" + ((i % cols == 0)?" style=\"clear:left;\"" : "") + ">");
+						out.print("<aside><a href=\"" + _link + "\"><img src=\"" + ((iconPath == void)? thumbPath : (resPath + "/folder.png")) + 
+							"\"" + attr("alt", cleanup(_title)) + attr("width", thumbWidth) + attr("height", thumbHeight) + data("modified", _modifiedDays) + " /></a></aside>");
+						out.print("<div class=\"data\"><h4><a href=\"" + _link + "\">" + stripLinebreak(_title) + "</a></h4>");
+						if ( showFolderDescription && !isEmpty(_caption) ) 
+							out.print("<p>" + stripLinebreak(_caption) + "</p>");
+						if ( showFolderImageCount && _fileCount > 0 )
+							out.print("<p class=\"info\">" + _fileCount + " " + ((_fileCount > 1)? "$text.images" : "$text.image") + "</p>");
+						out.print("</div></li>");
+						i++;
+					%></ja:fileiterator>
+					</ul>
+				</div></ja:if>
+				
+				<%-- Images, videos and other files --%>
+				<ja:if test="${thumbCount}" not value="0"><div class="thumbs<ja:if test="${folderCount}" not value="0"> addtop</ja:if>">
+					<ul class="clearfix"><% i = 0; %><ja:fileiterator nodirs>
+					<%	updateLocal();
+						if ( !(_audio && useAlbumAudioAsBackground) ) {
+							out.print("<li" + ((i % thumbCols == 0)?" style=\"clear:left;\"" : "") + ">");
+							out.print("<a href=\"" + _imagePath + "\"");
+							if ( captionPlacement.equals("tooltip") )
+								out.print(attr("title", cleanup(_thumbCaption))); 
+							out.print("><img src=\"" + _thumbPath + "\"");
+							out.print(data("caption", cleanup(_caption)));
+							out.print(data("modified", _modifiedDays));
+							out.print(data("size", _fileSize));
+							if ( !isEmpty( _link ) ) { 
+								out.print(data("link", _link));
+								if ( _original ) 
+									out.print(data("isoriginal", "true"));
+							}
+							if ( _video ) {
+								out.print(data("isvideo", "true"));
+								out.print(data("width", _videoWidth));
+								out.print(data("height", _videoHeight));
+							}
+							else if ( _audio ) 
+								out.print(data("isaudio", "true"));
+							else if ( _other ) 
+								out.print(data("isother", "true"));
+							else {
+								out.print(data("width", imageWidth));
+								out.print(data("height", imageHeight));
+								out.print(data("meta", stripQuot(_meta)));
+							}
+							if (showMap && _location != void && !isEmpty(_location)) {
+								out.print(data("map", stripQuot(_location)));
+								out.print(data("mapid", locationCount - 1));
+							}
+							out.print(data("shop", stripQuot(_shop)));
+							out.print(" alt=\"" + stripQuot(_title) + "\" /></a>");
+							if ( captionPlacement.equals("below") )
+								out.print("<p>" + _thumbCaption + "</p>");
+							out.println("</li>");
+						}
+						i++;
+					%></ja:fileiterator>
+					</ul>
+				</div></ja:if>
+
+<ja:include page="page-footer.inc" />

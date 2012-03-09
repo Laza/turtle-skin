@@ -1,0 +1,11 @@
+.hint {
+	color:#ddd;
+	background-color:rgba(0,0,0,0.8);
+}
+.no-rgba .hint {
+	background-color:transparent;
+	background-image:url(k80.png);
+}
+.hint a {
+	color:#fff;
+}

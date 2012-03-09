@@ -1,0 +1,12 @@
+<ja:if test="${use3dEffects}">
+#main header,
+.gallery .scrollbox,
+.gallery .navigation nav,
+.gallery .bottom .cont {
+	${bs_ml}
+}
+.gallery .img .other,
+.gallery .img img.main {
+	${bs_mm}
+}
+</ja:if>

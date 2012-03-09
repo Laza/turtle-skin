@@ -1,0 +1,47 @@
+.rgba .gallery .scrollbox,
+.rgba .gallery .bottom .cont {
+	background-color:rgba(255,255,255,0.4);
+}
+.no-rgba .gallery .scrollbox,
+.no-rgba .gallery .bottom .cont {
+	background-color:transparent;
+	background-image:url(w40.png);
+}
+.rgba.touch .gallery .scrollbox,
+.rgba.touch .gallery .bottom .cont,
+.rgba .gallery .scrollbox:hover,
+.rgba .gallery .bottom .cont:hover {
+	background-color:rgba(255,255,255,0.8);
+}
+.no-rgba .gallery .scrollbox:hover,
+.no-rgba .gallery .bottom .cont:hover {
+	background-color:transparent;
+	background-image:url(w80.png);
+}
+.rgba .gallery .scrollbox .cont a:hover, 
+.rgba .gallery .scrollbox .cont a:focus {
+	background-color:rgba(0,0,0,0.2);
+	outline:none;
+}
+.no-rgba .gallery .scrollbox .cont a:hover, 
+.no-rgba .gallery .scrollbox .cont a:focus {
+	background-image:url(k20.png);
+}
+.rgba .gallery .scrollbox .cont a.active {
+	background-color:rgba(0,0,0,0.4);
+}
+.no-rgba .gallery .scrollbox .cont a.active {
+	background-color:transparent;
+	background-image:url(k40.png);
+}
+.gallery .scrollbox .scleft,
+.gallery .scrollbox .scright {
+	background-image:url(scroll_w.png);
+}
+.rgba .gallery .bottom .meta b {
+	color:rgba(0,0,0,0.5);
+}
+.no-rgba .gallery .bottom .meta b {
+	color:#888;
+}
+

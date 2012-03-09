@@ -1,0 +1,2 @@
+// See plugins folder for implementation of this compiled UI
+new Gui(window, context);

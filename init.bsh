@@ -1,0 +1,604 @@
+/*
+	init.bsh - the Beanshell script to initialize the skin
+	Author: Laza
+*/
+
+import se.datadosen.jalbum.SkinProperties;
+
+// Base page name (default: index.html)
+String pageName = engine.getIndexPageName() + engine.getPageExtension();
+
+engine.processBeanShellFile(new File(skinDirectory, "includes/util.bsh"));
+
+/******************************************** Variables to initialize once */
+
+// Skin version
+String skinVersion = (new SkinProperties(skinDirectory).getProperty(SkinProperties.VERSION));
+
+// Name of chosen style
+String styleName = style.substring(0, style.indexOf("."));
+
+// New label attached to images will expire after this number of days
+int newDays = 0;
+
+// Reference 0 = Exif.DateTaken, 1 = FileSystem.modified, 2 = jAlbum.added - not available yet
+int newDaysRef = 0;
+
+// The language used in Jalbum according to ISO 2-letter notation
+String lang = Config.getConfig().getInterpretedLanguage(); 
+
+// Separator string used in photo data and album info bar
+String sep = " &nbsp; &middot; &nbsp; ";
+
+// Dummy javascript link
+String nolink = "javascript:void(0)";
+
+// Texts to export to JavaScript
+
+String jsTexts = getTexts(new String[]{
+		"startSlideshow",
+		"newItem",
+		"firstPage",
+		"lastPage",
+		"atFirstPage",
+		"atLastPage",
+		"atLastPageQuestion", 
+		"startOver", 
+		"stop", 
+		"share",
+		"shareOn",
+		"checkOutThis",
+		"previousPicture",
+		"nextPicture",
+		"backToHome",
+		"upOneLevel",
+		"backToIndex",
+		"oneToOneSize",
+		"fitToScreen",
+		"showInfo",
+		"hideInfo",
+		"showThumbs",
+		"hideThumbs",
+		"startAutoplay",
+		"stopAutoplay",
+		"clickToOpen",
+		"metaBtn", 
+		"metaLabel", 
+		"map",
+		"mapBtn",
+		"mapLabel",
+		"noGPS",
+		"shopBtn",
+		"shopLabel",
+		"buyThis",
+		"notForSale",
+		"shareBtn",
+		"shareLabel",
+		"download",
+		"original",
+		"hiRes",
+		"saveTip"
+});
+
+String helpTexts = getHelpTexts(new String[]{
+		"title",
+		"topNavigation",
+		"upOneLevel", 
+		"authorInfo",
+		"shareAndLike", 
+		"search",
+		"startSlideshow",
+		"previousPicture",
+		"backToIndex",
+		"toggleFit",
+		"toggleInfo",
+		"toggleThumbnails",
+		"toggleAutoPlay",
+		"nextPicture",
+		"pressF1"
+});
+
+// Folder image :: this image is copied to the index file's folder with the given name, cropped to the given size
+// Can be used as splash image for example
+// GUI should contain a JTextField folderImageSize, otherwise uncomment this:
+// String folderImageSize = "800x400";
+String folderImageFileName = "folderimage.jpg";
+int folderImageWidth;
+int folderImageHeight;
+
+// Folder thumbnail :: placed along the folder image
+// Can be used for sharing over social sites as page thumbnail
+String folderThumbFileName = "folderthumb.jpg";
+String folderThumbSize = "240x240";
+int folderThumbWidth;
+int folderThumbHeight;
+
+// Reduced size thumbnails for the thumbnail scroller area
+double getFloat( n ) {
+	if ( n instanceof String ) {
+		if ( n.endsWith("%") )
+			return Float.valueOf(n.substring(0, n.length() - 1)) / 100;
+		else
+			return Float.valueOf(n);
+	}
+	return n;
+}
+double reduce = getFloat( reduceThumbs );
+int reducedThumbWidth = Math.round(maxThumbWidth * reduce);
+int reducedThumbHeight = Math.round(maxThumbHeight * reduce);
+
+// Will the thumbnails load by the javascript? 
+// It's useful to speed up page load and bring javascript page composition upfront. 
+// If yes, placeholders will be used instead of real images 
+boolean postLoad = false;
+String thumbPlaceholder = "load.gif";
+
+// Add thumb data attributes?
+// useful for one-page (javascript-based) albums
+// with multi page albums you can add the data on the slide pages
+boolean addThumbData = true;
+
+// Video size (global)
+int videoWidth = 640;
+int videoHeight = 480;
+
+// Slideshow cycle length in milliseconds
+int shDelay = 4000;
+
+// Sharing options
+boolean facebookLike = facebookLike != void && isTrue(facebookLike);
+boolean twitterTweet = twitterTweet != void && isTrue(twitterTweet);
+boolean googlePlus = googlePlus != void && isTrue(googlePlus);
+boolean tumblrButton = tumblrButton != void && isTrue(tumblrButton);
+boolean shareFacebook = shareFacebook != void && isTrue(shareFacebook);
+boolean shareTwitter = shareTwitter != void && isTrue(shareTwitter);
+boolean shareDigg = shareDigg != void && isTrue(shareDigg);
+boolean shareDelicious = shareDelicious != void && isTrue(shareDelicious);
+boolean shareMyspace = shareMyspace != void && isTrue(shareMyspace);
+boolean shareStumbleupon = shareStumbleupon != void && isTrue(shareStumbleupon);
+boolean shareReddit = shareReddit != void && isTrue(shareReddit);
+boolean shareEmail = shareEmail != void && isTrue(shareEmail);
+
+// Is there any sharing option?
+boolean anyShares = 
+	facebookLike ||
+	twitterTweet ||
+	googlePlus ||
+	tumblrButton ||
+	shareFacebook || 
+	shareTwitter || 
+	shareDigg || 
+	shareDelicious || 
+	shareMyspace || 
+	shareStumbleupon || 
+	shareReddit ||
+	shareEmail;
+
+// Prepared to pass to javaScript
+String shareArray = 
+	"facebookLike: " + facebookLike + 
+	", twitterTweet: " + twitterTweet +
+	", googlePlus: " + googlePlus +
+	", tumblrBtn: " + tumblrButton +
+	", facebook: " + shareFacebook + 
+	", twitter: " + shareTwitter + 
+	", digg: " + shareDigg + 
+	", delicious: " + shareDelicious + 
+	", myspace: " + shareMyspace + 
+	", stumbleupon: " + shareStumbleupon +
+	", reddit: " + shareReddit +
+	", email: " + shareEmail;
+
+// Color of the bottom widget bar. Can be 'Black' and 'White'
+String widgetBarColor;
+
+// Theme for (facebook) "Like" button
+String likeBtnTheme;
+
+// The link back to Jalbum
+String credits;
+
+// The link back to the skin site
+String skinLink;
+
+// The string holding all background audio file links separated by comma
+String backgroundAudio;
+
+// Extra images - used in sites only
+String logo;
+
+// Debug mode? Don't use the minified javascript libraries.
+String min = (debugMode != void && debugMode != null && debugMode)? "" : ".min";
+
+// Initializing the skin (runs once per make)
+
+private void initSkin() {
+	
+	Dimension d;
+	
+	// Setting up filters
+	if (fixedShapeThumbs != void && fixedShapeThumbs) {
+		if (preZoomThumbs != void && !preZoomThumbs.equals("0")) {
+			ZoomFilter zoom = new ZoomFilter();
+			zoom.setZoomPercent(preZoomThumbs);
+			engine.addFilter(zoom, JAFilter.THUMBNAILS_PRESCALE_STAGE);
+		}
+		FixedShapeFilter fixed = new FixedShapeFilter();
+		engine.addFilter(fixed, JAFilter.THUMBNAILS_PRESCALE_STAGE);
+	}
+	
+	if (watermark != void && !isEmpty(watermark)) {
+		WatermarkFilter wm = new WatermarkFilter();
+		wm.setText(watermark.toString());
+		wm.setFace("Arial");
+		wm.setStyle("bold");
+		wm.setSize(20);
+		wm.setColor("#ffffff");
+		wm.setStrengthPercent(15);
+		wm.setAlign("right");
+		wm.setValign("bottom");
+		wm.setMargin(20);
+		wm.setAntialias(true);
+		engine.addFilter(wm, JAFilter.CLOSEUPS_POSTSCALE_STAGE);
+	}
+	
+	// Determining the color themes for the widget bar and the Like button
+	boolean light = "Light,White,Yellow,Beige".indexOf(styleName) >= 0;
+	widgetBarColor = light? "white" : "black";
+	likeBtnTheme = light? "light" : "dark";
+	
+	// Mark as new number of days
+	if ( newDaysCount != void && newDaysCount != null )
+		newDaysCount = ((Integer)newDaysCount).intValue();
+	
+	// Slideshow delay in ms
+	if ( slideshowDelay != void && slideshowDelay != null )
+		shDelay = ((Integer)slideshowDelay).intValue() * 1000;
+		
+	// Preparing folder image size
+	if ( folderImageSize != void && !isEmpty(folderImageSize) && (d = getDim(folderImageSize)) != null ) {
+		folderImageWidth = d.width;
+		folderImageHeight = d.height;
+	}
+	
+	// Preparing folder thumb size
+	if ( folderThumbSize != void && !isEmpty(folderThumbSize) && (d = getDim(folderThumbSize)) != null ) {
+		folderThumbWidth = d.width;
+		folderThumbHeight = d.height;
+	}
+	
+	// Video size
+	if ( videoSize != void && !isEmpty(videoSize) && (d = getDim(videoSize)) != null) {
+		videoWidth = d.width;
+		videoHeight = d.height;
+	}
+	
+	// Preparing credits
+	credits = getText("credit");
+	credits = credits.replaceAll("\\{0}","<a href=\"http://jalbum.net/\">" + getText("websites") + "</a>");
+	credits = credits.replaceAll("\\{1}","<a href=\"" + generatorUrl + "\" title=\"" + getText("jalbumDescription") + ", v" + 
+		internalVersion + "\" class=\"showhint\">jAlbum</a>");
+	skinLink = "<a href=\"http://lazaworx.com/\" title=\"" + getText("skin") + ": " + skin + " " + styleName + ", " + 
+		skinVersion + " [&lt;b&gt;&lt;a href=&quot;http://jalbum.net/skins/skin/" + skin + "&quot;&gt;" + getText("download") + "&lt;/a&gt;&lt;/b&gt;]\" class=\"showhint\">" + skin + "</a>";
+	
+	if ( !useAlbumAudioAsBackground )
+		backgroundAudio = copyBackgroundAudio();
+	
+	copyDirectory( new File(skinDirectory, "copy"), rootOutputDirectory );
+	
+	logo = urlEncode(logoName);
+
+	if ( useSearch )
+		startSearch(new File(resDirectory, "search.js"));
+}
+
+initSkin();
+
+/******************************************** Variables to initialize on each index page */
+
+// An optional feature to have the folder image cropped and saved to the folder root as e.g. "folderimage.jpg"
+boolean skipIndex;
+
+// flag if a folder has folder image or not
+boolean hasFolderImage;
+
+// Path to the folder image relative from album root needed by social sites to fetch the album thumbnail
+String folderThumbPath;
+
+// Footer links :: images | bottomNavigation | credits | Help
+String footerLinks;
+
+// Navigation bars - the variables used on the page
+String topNavigation;
+String bottomNavigation;
+
+// HTML formatted path to the current folder, e.g.: Family Album >> 2010 >> Tanzania 
+String breadcrumbPath; 
+
+// The link that takes one level up or a predefined 'home' link from the top level page
+String uplink;
+
+// Header and footer for the current folder
+String pageHeader;
+String pageFooter;
+
+// Description for the <head> <meta> tags
+String descript;
+
+// Counters for the different items found on a page
+int folderCount, folderImgCount, thumbCount, imageCount, videoCount, audioCount, otherCount, shopCount, locationCount;
+
+// Relative path from the album root to the current folder
+String relPath;
+
+// Extra variables (on image pages)
+
+// caption = the formatted caption based on the captionTemplate
+String thumbCaption;
+String caption;
+
+// alt text for the current image
+String altText;
+
+// image type = "image" | "video" | "audio" | "other" | "unknown"
+String imageType;
+
+// image number - folders excluded
+int _imageNum;
+
+// photo data =  the compiled photo data string based on the photoDataTemplate
+String photoData;
+
+// Location data formatted as 00.0000,-00.0000
+String coords;
+
+// Initializing counters
+
+void countFiles() {
+	int i, j;
+	String s;
+	Map m;
+	folderCount = 0;
+	thumbCount = 0;
+	imageCount = 0;
+	videoCount = 0;
+	audioCount = 0;
+	otherCount = 0;
+	
+	if ( useAlbumAudioAsBackground ) 
+		backgroundAudio = "";
+	
+	for (File f : files) {
+		if ( f.isDirectory() )
+			folderCount++;
+		else {
+			s = f.getName();
+			if (isImage(s))
+				imageCount++;
+			else if (isVideo(s))
+				videoCount++;
+			else if (isAudio(s)) {
+				if ( useAlbumAudioAsBackground )
+					backgroundAudio += ((backgroundAudio.length() > 0)? "::" : "") + s;
+				else
+					audioCount++;
+			} else
+				otherCount++;
+		}
+	}
+	thumbCount = imageCount + videoCount + audioCount + otherCount;
+}				
+	
+void initPage() {
+
+	String currentHtml;
+		
+	if ( pageType.equals("page") ) {
+		
+		currentHtml = urlEncode(fileName.replace(".htt", ".html"));
+		uplink = pageName;
+		skipIndex = false;
+		descript = cleanup(stripHTML(comment));
+		comment = engine.processTemplate((preFormat != void && preFormat)? formatPlainText(comment) : comment);
+
+		topNavigation = showTopNavigation? getNavigation(isEmpty(logo)) : "";
+		bottomNavigation = showBottomNavigation? getRootNavigation() : "";
+		
+	} else {
+		
+		currentHtml = pageName;
+		relPath = urlEncode(getRelPath());
+		topNavigation = showTopNavigation? getNavigation(isEmpty(logo) && level > 0) : "";
+		bottomNavigation = showBottomNavigation? getRootNavigation() : "";
+			
+		breadcrumbPath = getBreadcrumbPath();
+		hasFolderImage = copyFolderImages(folderImageFileName, folderImageSize, folderThumbFileName, folderThumbSize);
+		folderThumbPath = getFolderThumbPath(folderThumbFileName);
+		
+		uplink = (level > 0)? parentIndexPage : (useUplink? ((uplinkUrl == void || isEmpty(uplinkUrl))? "../" : uplinkUrl) : "");
+		countFiles();
+		skipIndex = skipThumbnailPage && folderCount == 0 && imageCount > 0;
+		
+		// Using comment variable universally on any page type
+		comment = (description == void || isEmpty(description))? "" : description;
+		descript = cleanup(comment);
+		
+		_imageNum = 0;
+		
+		pageHeader = "";
+		pageFooter = "";
+		
+		if (!skipIndex) {
+			if (header != void && !isEmpty(header) && (level == 0 || !headerTopLevelOnly)) {
+				try {
+					pageHeader = engine.processTemplate(preFormat? formatPlainText(header) : header);
+				}
+				catch (ElementException e) {
+					log("Error processing header", e);
+				}
+			}
+			if (footer != void && !isEmpty(footer) && (level == 0 || !footerTopLevelOnly)) {
+				try {
+					pageFooter = engine.processTemplate(preFormat? formatPlainText(footer) : footer);
+				}
+				catch (ElementException e) {
+					log("Error processing footer", e);
+				}
+			}
+		}
+		
+		folderImgCount = 0;
+		shopCount = 0;
+		locationCount = 0;
+		
+	}
+	
+	if ( useSearch ) {
+		startPageSearch(relPath);
+		addSearchItem(currentHtml, new String[] { title, isEmpty(descript)? "" : descript, (keywords == void || keywords == null)? "" : keywords });
+	}
+}
+
+void getFooterLinks() {	
+	boolean first = true;
+	StringBuilder sb = new StringBuilder(2048);
+	
+	if (showImageCount != void && showImageCount) {
+		int i = ((level == 0)? totalAlbumImages : (thumbCount + folderImgCount));
+		if ( i > 0 ) {
+			sb.append(i + " " + getText((i > 1)? "images" : "image"));
+			first = false;
+		}
+	}
+	if (!isEmpty(bottomNavigation)) {
+		if (first) first = false; 
+		else sb.append(sep);
+		sb.append(bottomNavigation);
+	}
+	if (customLink != void && !isEmpty(customLink)) {
+		if (first) first = false; 
+		else sb.append(sep);
+		sb.append("<a href=\"" + customLink + "\">" + ((customLinkText == void || isEmpty(customLinkText))? customLink : customLinkText) + "</a>");
+	}
+	if (excludeCredits == void || !excludeCredits) {
+		if (first) first = false; 
+		else sb.append(sep);
+		sb.append(credits + " &amp; " + skinLink);
+	}
+	if (showHelp != void && showHelp) {
+		if (first) first = false; 
+		else sb.append(sep);
+		sb.append("<a href=\"javascript:void(0)\" title=\"" + getText("getHelp") + "\" class=\"helpbtn showhint\">" + getText("help") + "</a>");
+	}
+	
+	footerLinks = sb.toString();
+		
+}
+
+void closePage() {
+	if ( useSearch ) {
+		stopPageSearch();
+	}
+}
+
+// Initializing local variables in the <ja:fileIterator> loop
+
+String _imagePath;
+String _thumbPath;
+String _title;
+String _caption;
+String _thumbCaption;
+int _fileCount;
+long _modifiedDays;
+String _link;
+boolean _original;
+String _fileSize;
+boolean _image;
+boolean _video;
+boolean _audio;
+boolean _other;
+String _meta;
+String _location;
+String _shop;
+int _videoWidth;
+int _videoHeight;
+
+void updateLocal() {
+	_title = "";
+	_caption = "";
+	_fileCount = 0;
+	_modifiedDays = 0L;
+	_modifiedAgo = "";
+	_link = "javascript:void(0)";
+	_meta = null;
+	_image = false;
+	_audio = false;
+	_video = false;
+	_other = false;
+
+	if ( folder != void && folder != null ) { 
+		_title = (title == void || title == null)? label.replaceAll("_", " ") : title;
+		_caption = local.get("description");
+		_fileCount = engine.countFiles(currentFile);
+		Map vars = (Map)currentObject.getVars();
+		_modifiedDays = (newDaysRef == 0)? folderDateTakenDays() : folderModifiedDays();
+		_link = (_fileCount > 0 || currentFile.length() > 0)? closeupPath : "javascript:void(0)";
+		folderImgCount += _fileCount;
+	}
+	else {
+		_imageNum++;
+		_image = isImage();
+		_video = isVideo();
+		_audio = isAudio();
+		_other = isOther();
+		
+		if ( !_audio || !useAlbumAudioAsBackground ) {
+			if ( iconPath != void && iconPath != null ) {
+				_thumbPath = getIcon();
+				_imagePath = originalPath;
+			} else {
+				_thumbPath = resPath + "/load.gif";
+				_imagePath = imagePath;
+			}
+			_title = (fileTitle == void || fileTitle == null)? label.replaceAll("_"," ") : fileTitle;
+			_caption = (imgCaptionTemplate == void || imgCaptionTemplate == null)? comment : processTemplate(imgCaptionTemplate);
+			_thumbCaption = (thumbCaptionTemplate == void || thumbCaptionTemplate == null)? comment : processTemplate(thumbCaptionTemplate);
+			_modifiedDays = (newDaysRef == 0)? fileDateTakenDays() : fileModifiedDays();
+			_link = ( _image && hiResPath != void && hiResPath != null )? hiResPath : ( (originalPath != void && originalPath != null)? originalPath : "" );
+			_original = (hiResPath == void || hiResPath == null) && (originalPath != void && originalPath != null);
+			_fileSize = getSizeAsString();
+			
+			if ( _image && showPhotoData )
+				_meta = getPhotoData();
+			
+			if ( _video ) {
+				Dimension d;
+				if (videoSize == void || isEmpty(videoSize) || (d = getDim(videoSize)) == null) {
+					_videoWidth = videoWidth;
+					_videoHeight = videoHeight;
+				}
+				else {
+					_videoWidth = d.width;
+					_videoHeight = d.height;
+				}
+			}
+				
+			if ( showMap && (_location = getLocation()) != null )
+				locationCount++; 
+			else 
+				_location = "";
+			
+			if ( showShop && (_shop = getShop()) != null )
+				shopCount++;
+			else 
+				_shop = "";
+			
+			if ( useSearch ) {
+				addSearchItem('#' + urlEncode(fileName.replace(".gif", ".png")), new String[] { _title, _caption, (keywords == void || keywords == null)? "" : keywords } );
+			}
+		}
+	}
+	
+	if (debugMode != void && debugMode )
+		debug();
+}

@@ -1,0 +1,20 @@
+@charset "utf-8";
+
+<ja:include page="includes/page_bg_fit.css" />
+
+.rgba #main header .title {
+	background-image:none;
+	background-color:rgba(0,0,0,0.4);
+	color:#fff;
+}
+.no-rgba #main header .title {
+	background-image:url(k40.png);
+	color:#fff;
+}
+
+<ja:include page="includes/items_legacy_dark.css" />
+
+footer {
+	color:${textColor};
+}
+

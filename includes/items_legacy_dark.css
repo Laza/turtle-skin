@@ -1,0 +1,42 @@
+.rgba .folders ul li {
+	background-color:rgba(255,255,255,0.2);
+}
+.no-rgba .folders ul li {
+	background-color:transparent;
+	background-image:url(w20.png);
+}
+.rgba .folders ul li:hover {
+	background-color:rgba(255,255,255,0.4);
+}
+.no-rgba .folders ul li {
+	background-image:url(w40.png);
+}
+.rgba .thumbs ul li,
+.rgba .gallery .scrollbox .cont a, 
+.no-rgba .thumbs ul li,
+.no-rgba .gallery .scrollbox .cont a {
+	background-color:transparent;
+	background-image:none;
+}
+.rgba .thumbs ul li > a:hover,
+.rgba .thumbs ul li > a:focus,
+.rgba .gallery .scrollbox .cont a:hover,
+.rgba .gallery .scrollbox .cont a:focus {
+	background-color:rgba(255,255,255,0.6);
+}
+.no-rgba .thumbs ul li > a:hover,
+.no-rgba .thumbs ul li > a:focus,
+.no-rgba .gallery .scrollbox .cont a:hover,
+.no-rgba .gallery .scrollbox .cont a:focus {
+	background-color:transparent;
+	background-image:url(w60.png);
+}
+.rgba .thumbs ul li > a.active,
+.rgba .gallery .scrollbox .cont a.active {
+	background-color:rgba(255,255,255,0.4);
+}
+.no-rgba .thumbs ul li > a.active,
+.no-rgba .gallery .scrollbox .cont a.active {
+	background-image:url(w40.png);
+}
+

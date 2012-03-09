@@ -1,0 +1,1086 @@
+/*
+	Common utilities
+	
+	Author: Laza
+*/
+
+import java.text.*;
+import java.lang.Number;
+import java.awt.image.*;
+import java.util.*;
+import java.net.URLEncoder;
+import se.datadosen.jalbum.*;
+import se.datadosen.util.*;
+import se.datadosen.jalbum.LicenseManager;
+import se.datadosen.imaging.exif.*;
+
+String indexName = engine.getIndexPageName() + engine.getPageExtension();
+
+// Logs error messages to the console (press F7 in Jalbum to see)
+
+void log(String s, Throwable e) { 
+	if (s != null)
+		System.out.println(s);
+	if (e != null)
+		e.printStackTrace(System.out);
+}
+
+void debug() {
+	if (debugVars != void && !isEmpty(debugVars))
+		debug(debugVars);
+}
+
+void debug(String s) {
+	String[] ns = s.split(",");
+	Object o;
+	if (ns != null && ns.length > 0) {
+		System.out.println( "\n------------------------------------------------------------------------------------ debug: " + fileName); 
+		for (String n : ns)
+			System.out.println(n + " = " + (((o = getObject(n)) != null)? o.toString() : "null"));
+	}
+}
+
+// Primitive function to check if a Beanshell variable exists and has some value
+
+boolean isEmpty(Object o) {
+	return o == void || o == null || o.toString().trim().equals("");
+}
+
+// Primitive function to check if a Beanshell variable exists and is true
+
+boolean isTrue(Object o) {
+	return o != null && ((Boolean) o).booleanValue();
+}
+
+// Java's URL encoding routine
+
+String urlEncode(String s) {
+	if (engine.isUrlEncode()) {
+		try {
+			s = java.net.URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20");
+		}
+		catch(java.io.UnsupportedEncodingException e) {
+			log("Encoding Error:", e);
+		}
+	} else {
+		// Security precaution to avoid broken strings in javascript
+		s = s.replaceAll("\\'", "\\\\'");
+	}
+	return s;
+}
+
+// Extensions recognized
+
+Map ext = new HashMap();
+ext.put("image", ".jpg.jpeg.gif.png");
+ext.put("video", ".avi.qt.mov.mpg.mpeg.mpe.wmv.asf.swf.flv.f4v.mp4.divx.xvid.ogv.webm");
+ext.put("audio", ".mp3.wma.aiff.ogg.weba.aac");
+ext.put("other", ".pdf.doc.docx.xls.xlsx.ppt.pptx.mdb.txt.key.lnk.xml.odt.ods.odp.odg.ooo.zip.arj.lzw.rar.sit");
+
+// Check image type by the extension
+
+String getType() {
+	return getType(fileName);
+}
+
+String getType(String s) {
+	int i = s.lastIndexOf(".");
+	if ( i > 0 ) {
+		String x = s.substring(i).toLowerCase();
+		Iterator i = ext.entrySet().iterator();
+		while ( i.hasNext() ) {
+			Map.Entry t = (Map.Entry)i.next();
+			if ( t.getValue().indexOf(x) >= 0 )
+				return t.getKey();
+		}
+	}
+	return "unknown";
+}
+
+// Getting the appropriate icon for audios, movies and other file types
+
+String getIcon() {
+	
+	if ( iconPath == void || iconPath == null )
+		return thumbPath;
+	
+	String t = getType(fileName), x;
+	int i = fileName.lastIndexOf(".");
+
+	if ( t.equals("other") ) {
+		x = fileName.substring(i + 1).toLowerCase();
+		if ( ext.get(t).indexOf(x) >= 0 ) {
+			if ( x.matches("^(doc|xls|ppt)x$") )
+				t = x.subString(0, 3);
+			else if ( x.matches("^(zip|arj|lzw|rar|sit)$") )
+				t = "zip";
+			else
+				t = x;
+		}
+	}
+	
+	return resPath + "/" + t + ".png";
+}
+
+// Check if the extension maps to an audio file
+
+boolean isAudio() {
+	return isAudio(fileName);
+}
+boolean isAudio(String s) {
+	int i;
+	if ((i = s.lastIndexOf(".")) != -1)
+		return ext.get("audio").indexOf(s.substring(i).toLowerCase()) >= 0;
+	else
+		return false;
+}
+
+// Check if the extension maps to an image file
+
+boolean isImage() {
+	return isImage(fileName);
+}
+boolean isImage(String s) {
+	int i;
+	if ((i = s.lastIndexOf(".")) != -1)
+		return ext.get("image").indexOf(s.substring(i).toLowerCase()) >= 0;
+	else
+		return false;
+}
+
+// Check if the extension maps to a video file
+
+boolean isVideo() {
+	return isVideo(fileName);
+}
+boolean isVideo(String s) {
+	int i;
+	if ((i = s.lastIndexOf(".")) != -1)
+		return ext.get("video").indexOf(s.substring(i).toLowerCase()) >= 0;
+	else
+		return false;
+}
+
+// Check if the extension maps to some other file
+
+boolean isOther() {
+	return isOther(fileName);
+}
+boolean isOther(String s) {
+	int i;
+	if ((i = s.lastIndexOf(".")) != -1)
+		return ext.get("other").indexOf(s.substring(i).toLowerCase()) >= 0;
+	else
+		return false;
+}
+
+// Retrieves an Object from the current pool of variables
+// staring with 'local' then 'current' finally searching in the skin variables
+// returns 'null' if none found
+
+Object getObject(String name) {
+	Object o;
+	if ((local != void && local != null && (o = local.get(name)) != null) || 
+		(current != void && current != null && (o = current.get(name)) != null) ||
+		(o = engine.getSkinVariables().get(name)) != null)
+		return o;
+	return null;
+}
+
+// Retrieves a user variable (defined on the Settings / Advanced / User variables section)
+
+String getUserVar(String name) {
+	Object o = engine.getUserVariables().get(name);
+	return (o == null)? null : o.toString();
+}
+
+// Retrieves any variable as a String
+
+String getString(String name) {
+	Object o = getObject(name);
+	return (o == null)? "" : o.toString();
+}
+
+// Retrieves any variable as 'int'
+
+int getInteger(String name) {
+	Object o;
+	String s;
+	if ((o = getObject(name)) != null && !isEmpty(s = o.toString())){
+		try { return Integer.parseInt(s);
+		} catch (NumberFormatException e) { log("Number error",e); }
+	}
+	return 0;
+}
+
+// Getting file size in human readable form
+
+String getSizeAsString() {
+	return getSizeAsString(fileSize);
+}
+
+String getSizeAsString(long s) {
+	NumberFormat df = new DecimalFormat("0.00");
+	Float n;
+	String p;
+	if (s >= 1073741824L) { n = s / 1073741824L; p = "GB"; }
+	else if (s >= 1048576L) { n = s / 1048576L; p = "MB"; }
+	else if (s >= 1024) { n = s / 1024L; p = "kB"; }
+	else { n = s; p = "B"; }
+	return df.format(n) + " " + p;
+}
+
+// Filtering junk texts
+
+String filterJunk(String s) {
+	if ( s == null ) {
+		return s;
+	}
+	s = s.trim();
+	if ( s.length() == 0 || s.equals("x") ||
+		s.startsWith("ACD Systems Digital Imaging") ||
+		s.startsWith("LEAD Technologies") ||
+		s.startsWith("AppleMark") ||
+		s.startsWith("Intel(R) JPEG Library") ||
+		s.startsWith("Created with The GIMP") ||
+		s.startsWith("ASCII") ||
+		s.startsWith("OLYMPUS DIGITAL CAMERA") ||
+		s.startsWith("File written by Adobe Photoshop")) {
+		return "";
+	}
+	else if (s.startsWith("Flash did not fire")) {
+		return noFlash;
+	}
+	return s;
+}
+
+// Getting a Meta field
+
+String getMeta(String key) {
+	Object o;
+	String v;
+	if (meta != void && meta != null && 
+		((o = meta.get(key)) != null ||
+		(o = meta.get("Xmp." + key)) != null ||
+		(o = meta.get("Iptc." + key)) != null ||
+		(o = meta.get("Windows XP " + key)) != null)) {
+		v = o.toString();
+		// F-number correction ( Philippe Couton )
+		if ("F-Number".equals(key) || "FNumber".equals(key) || 
+			key.toLowerCase().startsWith("aperture")) {
+			if (v.charAt(0) == 'F') {
+				v = v.substring(1);
+			}
+			return "f/" + v;
+		}
+		return v;
+	}
+	return null;
+}	
+
+// Enhancing Jalbum with 'fileLabel' and 'fileSize' variables
+// fileLabel = fileTitle if exists or label (=filename without extension) with replaced underscores
+// fileSize = Jalbum's fileSize in human readble form 
+
+String getVar(String name) {
+	Object o;
+	String s;
+	if (isEmpty(name)) {
+		return null;
+	}
+	if (name.equals("fileLabel")) {
+		return (fileTitle != void && !isEmpty(fileTitle))? fileTitle : label.replaceAll("_"," ");
+	} 
+	else if (name.equals("fileSize")) {
+		return getSizeAsString(fileSize);
+	}
+	else if (name.equals("imageNum")) {
+		return ((_imageNum != void && _imageNum != null)? _imageNum : imageNum).toString();
+	}
+	else if ((o = getObject(name)) != null) {
+		return filterJunk(o.toString());
+	} else if ((s = getMeta(name)) != null) {
+		return filterJunk(s);
+	}
+	return null;
+}
+
+// Returning the Dimensions of a BufferedImage or from a String formatted as 000x000 
+
+Dimension getDim(BufferedImage bi) {
+	return (bi == null)? null : new Dimension(bi.getWidth(), bi.getHeight());
+}
+
+Dimension getDim(String s) {
+	return (s == null && s.trim().equals(""))? null : new Dimension(Integer.parseInt(s.split("x")[0]), Integer.parseInt(s.split("x")[1]));
+}
+
+// Replacing HTML formatting chars with HTML entities :: to be used in HTML attributes, like "title"
+
+String cleanup(int s) {
+	return s.toString();
+}
+String cleanup(String s) {
+	if(s == null) return "";
+	else return s.replaceAll("&","&#38;").replaceAll("\'","&#39;").replaceAll("\"","&#34;").replaceAll("(\n|\r)","<br/>"); //.replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+
+// Stripping all HTML tags :: where no HTML tags are allowed, like <title>...</title>
+
+String stripHTML(int s) {
+	return s.toString();
+}
+String stripHTML(String s){
+	if(s == null) return "";
+	else return cleanup(s.replaceAll("\\<[^>]*>"," ").replaceAll("(\n|\r)"," ")).trim();
+}
+
+// Stripping the empty HTML tags used in the templates
+
+String stripEmptyHTML(String s){
+	if (s == null) return "";
+	else return s.replaceAll("\\<([A-Za-z0-9]+)[^>]*></\\1>", "").trim();
+}
+
+// Stripping only the quote characters and new lines :: to be used for javascript vars
+
+String stripQuot(int s) {
+	return s.toString();
+}
+String stripQuot(String s) {
+	if (s == null) return "";
+	return s.replaceAll("\'","&#39;").replaceAll("\"","&#34;").replaceAll("(\n|\r)","<br/>");
+}
+
+// Replacing the line breaks with html tags to avoid breaking javascript constructs
+
+String stripLinebreak(String s) {
+	if (s == null) return "";
+	return s.replaceAll("(\n|\r)", "<br/>");
+}
+
+String formatPlainText(String s) {
+	if (s == null) return "";
+	return s.replaceAll("\\*([^\\*]+)\\*", "<strong>$1</strong>").replaceAll("\\+([^\\+]+)\\+", "<em>$1</em>").replaceAll("\\_([^\\_]+)\\_", "<u>$1</u>").replaceAll("(\n|\r)", "<br/>").replaceAll("\\!(http\\:[\\w\\./\\-]+[png|gif|jpg])\\!", "<img src=\"$1\" />").replaceAll("\\[((?:http|https|ftp){1}\\:[\\w\\./\\-]+)\\]", "<a href=\"$1\">$1</a>").replaceAll("\\[([^\\|]+)\\|((?:http|https|ftp){1}\\:[\\w\\./\\-]+)\\]", "<a href=\"$2\">$1</a>");
+}
+
+// Wrapping a text in a HTML tag (might contain attributes)
+
+String wrap(String t, String s) {
+	if (isEmpty(s) || isEmpty(t)) return "";
+	return "<" + t + ">" + s + "</" + t.split(" ")[0] + ">";
+}
+
+// Insert a HTML attribute 'a', if value is not null or empty
+
+String attr(String a, boolean b) {
+	return attr(a, b.toString());
+}
+
+String attr(String a, long l) {
+	return attr(a, l.toString());
+}
+
+String attr(String a, String s) {
+	if (isEmpty(s) || isEmpty(a)) return "";
+	return " " + a + "=\"" + s + "\"";
+}
+
+// Insert a HTML attribute 'a', only if 'b' is true
+
+String attrIf(String a, boolean b) {
+	return b? attr(a, b.toString()) : "";
+}
+
+// Insert a HTML5 data attribute 'n', if value is not null or empty
+
+String data(String n, boolean b) {
+	return attr("data-" + n, b.toString());
+}
+
+String data(String n, long l) {
+	return attr("data-" + n, l.toString());
+}
+
+String data(String n, String s) {
+	return attr("data-" + n, s);
+}
+
+String dataIf(String n, boolean b) {
+	return attrIf("data-" + n, b);
+}
+
+// Retrieving a folder's last Date.taken date recursively to all subfolders
+
+long deepLastTaken(AlbumObject folder) throws IOException {
+	long lastTaken = 0, lt;
+	Category cat;
+	Scope vars;
+	Object meta;
+	String s;
+	Date d;
+	
+	for (AlbumObject ao : folder.getChildren()) {
+		cat = ao.getCategory();
+		if (ao.isIncluded() && cat != Category.webPage) {
+			if ( cat == Category.folder )
+				lt = deepLastTaken(ao);
+			else {
+				vars = ao.getVars();
+				if ( vars != null && (meta = vars.get("meta")) != null && 
+					(s = meta.get("Date/Time Original")) != null ) {
+					d = ImageInfoFormatter.parseExifDate(s);
+					lt = (d == void || d == null)? 0 : d.getTime();
+				} else {
+					lt = ao.getLastModified();
+				}
+			}
+			if (lt > lastTaken) {
+				lastTaken = lt;
+			}
+		}
+	}
+	return lastTaken;
+}
+
+int folderDateTakenDays() {
+	long lt;
+	try {
+		lt = deepLastTaken(currentObject);
+	} catch(IOException e) {
+		System.out.println(e);
+		return 0;
+	}
+	return (int)(lt / 86400000L);
+}
+
+// File Date Taken days
+
+long fileDateTakenDays() {
+	String s;
+	Date d;
+	long m;
+	
+	if (meta != void && meta != null && (s = meta.get("Date/Time Original")) != null) {
+		d = ImageInfoFormatter.parseExifDate(s);
+		m = (d == void || d == null)? 0 : d.getTime();
+	} else
+		m = currentObject.getLastModified();
+	return (int)(m / 86400000L);
+}
+
+// Retrieving a folder's last modified Object's date recursively to all subfolders
+
+long deepLastModifiedObject(AlbumObject folder) throws IOException {
+	long lastModified = 0, lm;
+	Category cat;
+	for (AlbumObject ao : folder.getChildren()) {
+		cat = ao.getCategory();
+		if (ao.isIncluded() && cat != Category.webPage) {
+			if ( cat == Category.folder )
+				lm = deepLastModifiedObject(ao);
+			else
+				lm = ao.getLastModified();
+			if (lm > lastModified) {
+				lastModified = lm;
+			}
+		}
+	}
+	return lastModified;
+}
+
+// Retrieving a folder's last modified file date (respecting the date format set by the user)
+
+long folderModified() {
+	long lm;
+	try {
+		lm = deepLastModifiedObject(currentObject);
+	} catch( IOException e ) {
+		System.out.println(e);
+		return 0;
+	}
+	return lm;
+}
+
+String folderModifiedString() {
+	String dateFormat = engine.getDateFormat();
+	DateFormat df = isEmpty(dateFormat)? new SimpleDateFormat(dateFormat) : new SimpleDateFormat();
+	FormattedDate lastMod = new FormattedDate(folderModified(), df);
+	return lastMod.toString();
+}
+
+long folderModifiedDays() {
+	return (int)(folderModified() / 86400000L);
+}
+
+// File Modified days
+
+long fileModifiedDays() {
+	return (int)(currentObject.getLastModified() / 86400000L);
+}
+
+// Getting texts from the translation files, returning empty string if not exists
+
+String getText(String name) {
+	String s = "";
+	try { 
+		s = texts.getString(name);
+	} catch (MissingResourceException e) {
+		return name;
+	}
+	return s;
+}
+
+// From an array of text labels returns the translations as a javascript array
+// usage in .htt files: var texts={<%=getTexts(new String[]{"atLastPage","startOver","up","backToHome","stop"})%>};
+
+String getTexts(String[] names) {
+	StringBuilder sb = new StringBuilder(1024);
+	for(String n : names) {
+		if(sb.length() > 0) sb.append(", ");
+		sb.append(n + ":'" + cleanup(getText(n)) + "'");
+	}
+	return sb.toString();
+}
+
+String getHelpTexts(String[] names) {
+	StringBuilder sb = new StringBuilder(1024);
+	for(String n : names) {
+		if(sb.length() > 0) sb.append(", ");
+		sb.append("'" + stripQuot(getText("help." + n)) + "'");
+	}
+	return "help: [ " + sb.toString() + " ]";
+}
+
+// Formatting GPS coodinates to Google's taste: 12.34567,-0.12345
+
+String formatGps(String coord) {
+	if (isEmpty(coord)) return null;
+	int i;
+	String[] s = coord.split("[°\'\" ]", 4);
+	double degrees = 0L, minutes = 0L;
+	float seconds = 0.0f;
+	try {
+		degrees = Double.parseDouble(s[0]);
+		if(s.length > 1) 
+			minutes = Double.parseDouble(s[1]);
+		if(s.length > 2)
+			seconds = Float.parseFloat(s[2]);
+	}
+	catch (NumberFormatException e) {
+		log("Number error", e);
+		return null;
+	}
+	java.text.DecimalFormat df = new java.text.DecimalFormat("0.00");
+	df.setDecimalSeparatorAlwaysShown(false);
+	df.setMaximumFractionDigits(5);
+	return (df.format(degrees + (minutes * 60 + seconds) / 3600)).replace(',', '.');
+}
+
+// Retrieving GPS coodinates from gpsLatitude and gpsLongitude jAlbum variables
+// 'location' has preference over the embedded data
+
+String getLocation() {
+	String lon, lat, lonr, latr;
+	if ( location != void && location.matches("([-\\d.]+),\\s*([-\\d.]+)"))
+		return location;
+	else if (meta != void && !isEmpty(meta) &&
+		!isEmpty(lat = meta.get("GPS.GPS Latitude")) &&
+		!isEmpty(lon = meta.get("GPS.GPS Longitude")) &&
+		(lat = formatGps(lat)) != null &&
+		(lon = formatGps(lon)) != null ) {
+			if ((latr = meta.get("GPS.GPS Latitude Ref")) != null && latr.equals("S")) lat = "-" + lat;
+			if ((lonr = meta.get("GPS.GPS Longitude Ref")) != null && lonr.equals("W")) lon = "-" + lon;
+			return (lat + "," + lon).replaceAll("--", "");
+	}
+	return null;
+}
+
+// Getting one photoData variable. The input can be piped "Caption|By-Line|Iptc.By-Line" - the first found will be returned
+// Prevalence: 1. Jalbum variable 2. meta variable 3. meta Iptc.variable 4. meta Xmp.variable 5. meta Windows XP variable
+// Returns: "<b>Label</b> Value"
+// If label is found in the trasnlation then it will be used, otherwise the key found
+
+// Remapping proprietary metadata strings
+
+String remapKey(String s) {
+	return s.replaceAll("Canon Makernote.Unknown tag (0x0095)", "lens");
+}
+
+String getKey(String templ) {									// Returns the first found in a set of keys, separated by '|'
+	String[] keys = templ.split("\\|");
+	String label;
+	Object val;
+	for(String key : keys) {
+		key = key.trim();
+		if (key.charAt(0) == '#') continue;						// commented out key
+		if ((val = getVar(key)) != null && val.length() > 0) {	// getting the variable
+			if (showPhotoDataLabel) {							// Show with label
+				label = getText(remapKey(key));					// Translated label
+				return "<b>" + (isEmpty(label)? key : label) + "</b> " + val;
+			}
+			else												// Only the value
+				return val;
+		}
+	}
+	return null;
+}
+
+// Retrieves an array of photo data fields on the following format:
+// "Key1|Key1alias1|Key1alias2, Key2, Key3"
+// Retruns the HTML formatted collection of fields found
+
+String getPhotoData() {
+	return (isEmpty(photoDataTemplate))? "" : getPhotoData(photoDataTemplate);
+}
+
+String getPhotoData(templ) {
+	StringBuilder sb = new StringBuilder(1024);
+	String key, val;
+	for (String key : templ.split("[,;]")) {
+		if ((val = getKey(key)) != null) {
+			if (sb.length() > 0) sb.append(sep);
+			sb.append(val);
+		}
+	}
+	return sb.toString();
+}
+
+// Processing a template string :: replacing ${variable} keys
+
+String processTemplate(String templ) {
+	processTemplate(templ, imageNum);
+}
+
+String processTemplate(String templ, int num) {
+	if (isEmpty(templ)) {
+		return "";
+	}
+	StringBuilder sb = new StringBuilder(1024);
+	int i, len = templ.length(), from, to = 0;
+	char c;
+	String s;
+	
+	do {
+		i = templ.indexOf('$', to);
+		if (i < 0) {
+			sb.append(templ.substring(to));
+		} else {
+			sb.append(templ.substring(to, i));
+			if ((from = i + 1) < len) {
+				if (templ.charAt(from) == '{') {
+					if ((to = templ.indexOf('}', from)) == -1) {
+						to = len;
+					}
+					s = getVar(templ.substring(from + 1, to));
+					if ( s != null )
+						sb.append( s );
+					to++;
+				} else {
+					for(to = from; to < len; to++) {
+						c = templ.charAt(to);
+						if (!(Character.isLetterOrDigit(c) || c == '.' || c == '-' || c == '_')) break;
+					}
+					s = getVar(templ.substring(from, to));
+					if ( s != null )
+						sb.append( s );
+				}
+			}
+			else to = from;
+		}
+	} while (i >= 0 && to < len);
+	return stripEmptyHTML(sb.toString()).trim();
+}
+
+String getThumbCaption() {
+	return (thumbCaptionTemplate == void || thumbCaptionTemplate == null)? comment : processTemplate(thumbCaptionTemplate);
+}
+
+String getCaption() {
+	return (imgCaptionTemplate == void || imgCaptionTemplate == null)? comment : processTemplate(imgCaptionTemplate);
+}
+
+// Preprocess shop options
+
+String getShop() {
+	if (isEmpty(shopId) || isEmpty(shopCurrency) ||
+		shopOptions == void || isEmpty(shopOptions) || shopOptions.equals("-")) return null;
+	shopCount++;
+	return cleanup(shopOptions.replaceAll("\\n", "::"));
+}
+
+// Path from root to current folder
+
+String getRelPath() {
+	String relPath = IO.relativePath(outputDirectory, rootOutputDirectory);
+	if (relPath == null || relPath.equals("."))
+		relPath = "";
+	else {
+		if (relPath.startsWith("./"))
+			relPath = relPath.substring(2);
+		relPath += "/";
+	}
+	return relPath;
+}
+
+// Path to current folder's thumbnail trying to reconstruct the whole path from the site root like Facebook needs it
+// 1. Using upload path (+ album title if there's no '/' at the end)
+// 2. Using only album title as album folder :: the way jalbum.net does it
+
+String getFolderThumbPath(folderThumbFileName) {
+	String p;
+	if (uploadPath != void && !isEmpty(uploadPath))
+		p = uploadPath + (uploadPath.endsWith("/")? "" : ("/" + albumTitle + "/"));
+	else
+		p = albumTitle + "/";
+	//return p + getRelPath() + folderThumbFileName;
+	return URLEncoder.encode(p + getRelPath() + folderThumbFileName, "UTF-8").replaceAll("\\+", "%20").replaceAll("%2F", "/").replaceAll("%3A", ":");
+}
+
+// Copy folder image to the output folder cropped to specified size
+// Copy folder thumbnail, which is a smaller representation of the same as well
+// Save the latest settings in order to avoid generating the scaled image multiple times
+
+boolean copyFolderImages(String folderImageFileName, String folderImageSize, String folderThumbFileName, String folderThumbSize) {
+	
+	AlbumObject rep = currentFolder.getRepresentingAlbumObject(true);
+	AlbumObjectProperties props = currentFolder.getProperties();
+	AlbumImage ai;
+	File repFile;
+	CropFilter cf;
+	Dimension d, d1;
+	boolean propsChanged = false;
+
+	if (rep == null) return false;
+	folderImagePath = rep.getPathFromRoot();
+	
+	// Folder Image
+	if ( !isEmpty(folderImageFileName) ) {
+		repFile = new File(outputDirectory, folderImageFileName);
+		
+		if ( (d = getDim(folderImageSize)) != null && d.width > 0 && d.height > 0 && 
+			( !repFile.exists() 
+			|| lastFolderImagePath == void || !folderImagePath.equals(lastFolderImagePath)
+			|| lastFolderImageSize == void || !folderImageSize.equals(lastFolderImageSize)) ) { 
+
+
+			ai = new AlbumImage(rep.getFile(), engine);
+			d1 = getDim((BufferedImage)ai.getImage());
+			ai = ai.applyFilters(JAFilter.ALL_PRESCALE_STAGE);
+			if (((Float)d1.width) / ((Float)d1.height) > ((Float)d.width) / ((Float)d.height))
+				ai = ai.scaleToFit(new Dimension(Integer.MAX_VALUE, d.height));
+			else
+				ai = ai.scaleToFit(new Dimension(d.width, Integer.MAX_VALUE));
+			cf = new CropFilter();
+			cf.setBounds(d);
+			cf.setYWeight(0.382F);
+			ai = ai.applyFilters(JAFilter.ALL_POSTSCALE_STAGE).applyFilter(cf).saveJPEG(repFile);
+			
+			props.put("lastFolderImagePath", folderImagePath);
+			props.put("lastFolderImageSize", folderImageSize);
+			propsChanged = true;
+		}
+	}
+	
+	// Folder Thumbnail
+	if ( !isEmpty(folderThumbFileName) && !isEmpty(folderThumbSize) ) {
+		repFile = new File(outputDirectory, folderThumbFileName);
+		
+		if ( (d = getDim(folderThumbSize)) != null && d.width > 0 && d.height > 0 &&
+			( !repFile.exists()
+			|| lastFolderImagePath == void || !folderImagePath.equals(lastFolderImagePath)
+			|| lastFolderThumbSize == void || !lastFolderThumbSize.equals(lastFolderThumbSize)) ) {
+			
+			ai = new AlbumImage(rep.getFile(), engine);
+			ai = ai.applyFilters(JAFilter.ALL_PRESCALE_STAGE).scaleToFit(d);
+			ai = ai.applyFilters(JAFilter.ALL_POSTSCALE_STAGE).saveJPEG(repFile);
+			
+			props.put("lastFolderThumbSize", folderThumbSize);
+			propsChanged = true;
+		}
+	}
+	
+	// Storing parameters to avoid reprocessing
+	if ( propsChanged )
+		props.save(true);
+	
+	return true;
+}
+
+// Clickable path to the current folder
+
+String getBreadcrumbPath(AlbumObject folder, String prefix) {
+	StringBuilder sb = new StringBuilder();
+	if (folder == null) {
+		return "";
+	}
+	sb.append( getBreadcrumbPath(folder.getParent(), (prefix + "../")) );
+	String title = folder.getTitle();
+	if ( "".equals(title) ) {
+		title = folder.getName();
+	}
+	sb.append("<a href=\"" + prefix + engine.getIndexPageName() + engine.getPageExtension() + "\">" + title + "</a>");
+	return sb.toString();
+}
+	
+String getBreadcrumbPath() {
+	return (level > 0)? getBreadcrumbPath(currentFolder.getParent(), "../") : "";
+}
+
+// Copy background music :: copies the files into the /res folders of the album
+
+String copyBackgroundAudio() {
+	return ( playlist != void && !isEmpty(playlist) )? copyBackgroundAudio(playlist) : null;
+}
+
+String copyBackgroundAudio(pl) {
+	StringBuilder sb = new StringBuilder();
+	File src;
+	if ( !isEmpty(pl) ) {
+		for (String f : pl.split("\t")) {
+			src = new File(f);
+			if (src.exists() && resDirectory.exists()) {
+				try {
+					IO.copyFile(src, resDirectory);
+					sb.append(((sb.length() > 0)? "::" : "") + urlEncode(src.getName()));
+				} catch (IOException e) {
+					log("Error copying background audio file(s)", e);
+				}
+			}
+		}
+	}
+	return sb.toString();
+}
+
+// Copying an image to the output's /res folder
+
+String copyImage(name) {
+	File src;
+	if ( !isEmpty(name) ) {
+		src = new File(name);
+		if (src.exists() && resDirectory.exists()) {
+			try {
+				IO.copyFile(src, resDirectory);
+				return urlEncode(src.getName());
+			} catch (IOException e) {
+				log("Error copying image", e);
+			}
+		}
+	}
+	return "";
+}
+
+// Copying a whole folder
+
+void copyDirectory(src, dst) {
+	
+	if (src.exists() && dst.exists()) {
+		try {
+			se.datadosen.util.IO.copyDirectoryContent(src, dst, true);
+		}
+		catch (IOException e) {
+			log("Error copying directory", e);
+		}
+	}
+}
+
+String chSer(){
+	int codeLength = 32;
+	int sLength = 20;
+	int[] x = {0x12,0x45,0x23,0xA0,0x75,0x63,0xEF,0x42};
+	int[] src = new int[sLength];
+	String r = "";
+	int i, j = 0, k, v;
+	String s = getUserVar("chameleonSerial");
+	if (isEmpty(s)) s = getUserVar("turtleSerial");
+	if (isEmpty(s) || s.length() < codeLength) return "";
+	for (i = 0; i < codeLength; i++){
+		if ((v=(int)s.charAt(i)-0x30)>9) v-=8;
+		v <<= 11-j%8; k = j/8;
+		if (k < sLength){
+			src[k] |= v>>8; 
+			if (++k < sLength)
+				src[k] |= v&0xff;
+		}
+		j += 5;
+	}
+	for (i = 0; i < sLength; i++) src[i] ^= x[i%8];
+	for (v = 0, i=0; i < sLength-2; i++){ r+=(char)src[i]; v+=src[i]; }
+	if (v == (src[sLength-2]%0x100 + src[sLength-1]*0x100)){ return r.substring(4,14); }
+	return "";
+}
+
+String wmk = chSer();
+
+String getLicense() {
+	return ( licenseManager != null )? licenseManager.getLicenseCode() : wmk;
+}
+
+String license = getLicense();
+
+boolean excludeCredits = excludeBacklinks || (wmk.length() > 0);
+
+String noFlash = getText("noFlash");
+if ( isEmpty(noFlash) ) {
+	noFlash = "No";
+}
+
+// Search support functions
+
+int spc = 0;
+int stc = 0;
+Writer ss;
+String ssep = "-!-";
+
+Writer startSearch(File f) {
+	if ( f == null )
+		return null;
+	try {
+		ss = new OutputStreamWriter(new FileOutputStream(f), "UTF8");
+	} catch (IOException e) {
+		System.out.println(e);
+		return null;
+	}
+	ss.write("Search = {};");
+	ss.write("\r\nSearch.sep = '" + ssep + "';");
+	ss.write("\r\nSearch.folderThumb = '" + folderThumbFileName + "';");
+	ss.write("\r\nSearch.indexName = '" + pageName + "';");
+	ss.write("\r\nSearch.text = { title:'" + getText("searchResultsFor") + "', notFound:'" + getText("notFound") + "', close:'" + getText("close") + "' };");
+	ss.write("\r\nSearch.data = [");
+	return ss;
+}
+
+void stopSearch() {
+	if (ss != void && ss != null) {
+		ss.write("\r\n];");
+		ss.close();             
+	}
+}
+
+// Cleaning up Paths
+
+String cleanPath( String p ) {
+	if (p.equals("."))
+		return "";
+	p = p.replaceAll("%2F", "/");
+	if (p.endsWith("/"))
+		p = p.substring(0, p.length() - 1);
+	return p;
+}
+
+// Stripping HTML tags and quotes
+
+String cleanItem(String s) {
+	if (s == null) return "";
+	return s.replaceAll("\\<[^>]*>"," ").replaceAll("(\n|\r)"," ").replaceAll("\'","\\\\\'").replaceAll("\"","\\\\\"").trim();
+}
+
+
+void startPageSearch(String path) {
+	if (ss != void && ss != null) {
+		ss.write(((spc > 0)? "," : "") + "\r\n\t\t[ '" + cleanPath(path) + "', [ ");
+		stc = 0;
+	}
+}
+
+void stopPageSearch() {
+	if (ss != void && ss != null) {
+		ss.write(" ] ]");
+		spc++;
+	}
+}
+
+void addSearchItem(String fn, String[] keys) {
+	String k;
+	if (ss != void && ss != null) {
+		ss.write(((stc > 0)? "," : "") + "'" + cleanItem(fn));
+		for ( k : keys ) {
+			if ( !k.trim().equals("") )
+				ss.write(ssep + cleanItem(k));
+		}
+		ss.write("'");
+		stc++;
+	}
+}
+
+// Get simple navigation links
+
+String getRootNavigation() {
+	return getRootNavigation(" | ");
+}
+
+String getRootNavigation(String sep) {
+	StringBuilder sb = new StringBuilder(1024);
+	Category cat;
+	Scope vars;
+	String root = rootPath.equals(".")? "" : (rootPath + "/");
+	
+	if ( level > 0 ) {
+		sb.append("<a href=\"" + root + indexName + "\" class=\"home\">" + getText("home") + "</a>");
+	}		
+	
+	for (AlbumObject ao : rootFolder.getChildren()) {
+		if (ao.isIncluded()) {
+			cat = ao.getCategory();
+			if ( cat == Category.folder || cat == Category.webPage ) {
+				vars = ao.getVars();
+				sb.append(((sb.length() > 0)? sep : "") + 
+					"<a href=\"" + root + vars.get("closeupPath") + "\"" + 
+					((currentObject.isWithin(ao))? " class=\"actual\"" : "") + 
+					">" + vars.get("title") + "</a>");
+			}
+		}
+	}
+	
+	return sb.toString();
+}
+
+// Get the whole navigation menu
+
+String getNavigation() {
+	return getNavigation(rootFolder, "", 3, true);
+}
+
+String getNavigation(boolean home) {
+	return getNavigation(rootFolder, "", 3, home);
+}
+
+String getNavigation(int depth) {
+	return getNavigation(rootFolder, "", depth, true);
+}
+
+String getNavigation(AlbumObject folder, String relPath, int depth, boolean home) {
+	StringBuilder sb = new StringBuilder(2048);
+	boolean isFolder;
+	Category cat;
+	String root = rootPath.equals(".")? "" : (rootPath + "/");
+	String path, relp = (relPath.length() == 0)? "" : (relPath + "/");
+	Scope vars;
+	
+	if ( home ) {
+		sb.append("<li class=\"controls home\"><a href=\"" + root + indexName + "\" title=\"" + getText("home") + "\">&nbsp;</a></li>");
+	}
+	for (AlbumObject ao : folder.getChildren()) {
+		if (ao.isIncluded()) {
+			cat = ao.getCategory();
+			
+			if ( (isFolder = (cat == Category.folder)) || cat == Category.webPage ) {
+				vars = ao.getVars();
+				path = relp + (isFolder? urlEncode(vars.get("label")) : vars.get("closeupPath")); 
+				
+				sb.append("<li" + ((currentObject.isWithin(ao))? " class=\"actual\"" : "") + ">");
+				sb.append("<a href=\"" + root + path + (isFolder? ("/" + indexName) : "") + "\">" + vars.get("title") + "</a>");				
+				if (cat == Category.folder && depth > 0)
+					sb.append(getNavigation(ao, path, depth - 1, false));
+				sb.append("</li>");
+			}
+		}
+	}
+	
+	if (sb.length() > 0) {
+		sb.insert(0, "<ul>");
+		sb.append("</ul>");
+	}
+	
+	return sb.toString();
+}

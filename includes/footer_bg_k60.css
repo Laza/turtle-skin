@@ -1,0 +1,14 @@
+#main footer .wrap {
+	color:#aaa;
+	background-color:rgba(0,0,0,0.6);
+}
+#main footer .wrap a {
+	color:#ddd;
+}
+#main footer .wrap a:hover {
+	color:#fff;
+}
+.no-rgba #main footer .wrap {
+	background-color:transparent;
+	background-image:url(k60.png);
+}

@@ -1,0 +1,9 @@
+skin.backgroundColor=#111111
+skin.textColor=#cccccc
+skin.linkColor=#f7c212
+skin.hoverColor=#ffd856
+skin.borderColor=#fef7ca
+skin.borderWidth=6
+skin.use3dEffects=true
+skin.descriptionVisible=true
+

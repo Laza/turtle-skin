@@ -1,0 +1,22 @@
+@charset "utf-8";
+
+<ja:include page="includes/page_bg_fit.css" />
+
+<ja:include page="includes/items_bg_k40.css" />
+
+<ja:include page="includes/scrbar_bg_page.css" />
+
+<ja:include page="includes/footer_bg_k60.css" />
+
+<ja:include page="includes/panels_bg_page.css" />
+
+.gallery .scrollbox {
+	border-left:2px dashed #000;
+	border-right:2px dashed #000;
+	border-bottom:2px dashed #000;
+}
+.gallery .bottom .cont {
+	border-left:2px dashed #000;
+	border-right:2px dashed #000;
+	border-top:2px dashed #000;
+}

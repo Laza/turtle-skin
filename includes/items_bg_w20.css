@@ -1,0 +1,42 @@
+.rgba .thumbs ul li,
+.rgba .folders ul li {
+	background-color:rgba(255,255,255,0.2);
+}
+.no-rgba .thumbs ul li,
+.no-rgba .folders ul li {
+	background-color:transparent;
+	background-image:url(w20.png);
+}
+.thumbs ul li > a:hover,
+.thumbs ul li > a:focus,
+.folders ul li:hover {
+	background-color:rgba(255,255,255,0.4);
+	outline:none;
+}
+.no-rgba .thumbs ul li > a:hover,
+.no-rgba .thumbs ul li > a:focus,
+.no-rgba .folders ul li:hover {
+	background-color:transparent;
+	background-image:url(w40.png);
+}
+.folders ul li > a {
+	color:#333;
+}
+.rgba .thumbs ul li > a.active,
+.no-rgba .thumbs ul li > a.active {
+	background-color:#333;
+}
+.rgba #main article,
+.no-rgba #main article {
+	background-color:#fff;
+}
+.thumbs ul li > p span.nr {
+	font-weight:bold;
+	font-style:normal;
+	padding:0px 3px;
+	color:#222;
+	background-color:#fff;
+	-moz-border-radius:3px;
+	border-radius:3px;
+}
+

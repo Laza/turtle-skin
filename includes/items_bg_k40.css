@@ -1,0 +1,49 @@
+.rgba .thumbs ul li,
+.rgba .folders ul li {
+	background-color:rgba(0,0,0,0.4);
+}
+.no-rgba .thumbs ul li,
+.no-rgba .folders ul li {
+	background-color:transparent;
+	background-image:url(k40.png);
+}
+.rgba .thumbs ul li > a:hover,
+.rgba .thumbs ul li > a:focus,
+.folders ul li:hover {
+	background-color:rgba(0,0,0,0.6);
+	outline:none;
+	color:#ccc;
+}
+.no-rgba .thumbs ul li > a:hover,
+.no-rgba .thumbs ul li > a:focus,
+.no-rgba .folders ul li:hover {
+	background-color:transparent;
+	background-image:url(k60.png);
+}
+.rgba .folders ul li,
+.no-rgba .folders ul li,
+.rgba .thumbs ul li,
+.no-rgba .thumbs ul li {
+	color:#ccc;
+}
+.rgba .folders ul li:hover,
+.no-rgba .folders ul li:hover,
+.rgba .thumbs ul li:hover,
+.no-rgba .thumbs ul li:hover {
+	color:#fff;
+}
+.rgba .thumbs ul li > a.active {
+	background-color:rgba(255,255,255,0.4);
+}
+.no-rgba .thumbs ul li > a.active {
+	background-color:transparent;
+	background-image:url(w40.png);
+}
+#main article {
+	background-color:rgba(0,0,0,0.8);
+}
+.no-rgba #main article {
+	background-color:transparent;
+	background-image:url(k80.png);
+}
+

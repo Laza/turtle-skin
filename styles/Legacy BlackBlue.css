@@ -1,0 +1,27 @@
+@charset "utf-8";
+
+.gallery {
+	background:${backgroundColor} url(<ja:if test="${backgroundImage}" not value="">${backgroundImage}</ja:if><ja:else>bg.jpg</ja:else>) center top no-repeat;
+	background-size:100% 100%;
+	-moz-background-size:100% 100%;
+}
+.no-backgroundsize .gallery {
+	background-repeat:repeat;
+}
+
+.rgba #main header .title {
+	background-image:none;
+	background-color:rgba(0,0,0,0.4);
+	color:#fff;
+}
+.no-rgba #main header .title {
+	background-image:url(k40.png);
+	color:#fff;
+}
+
+<ja:include page="includes/items_legacy_dark.css" />
+
+footer {
+	color:${textColor};
+}
+

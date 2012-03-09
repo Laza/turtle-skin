@@ -1,0 +1,18 @@
+@charset "utf-8";
+
+<ja:include page="includes/page_bg_fit.css" />
+
+<ja:include page="includes/items_bg_w60.css" />
+
+<ja:include page="includes/footer_bg_k20.css" />
+
+<ja:include page="includes/scrbar_bg_page.css" />
+
+<ja:include page="includes/panels_bg_page.css" />
+.gallery .bottom .meta b {
+	color:#999;
+}
+<ja:include page="includes/controls_bg_page.css" />
+
+<ja:include page="includes/nav_buttons_light.css" />
+

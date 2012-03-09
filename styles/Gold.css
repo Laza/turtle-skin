@@ -1,0 +1,46 @@
+@charset "utf-8";
+
+<ja:include page="includes/page_bg_fit.css" />
+
+<ja:include page="includes/items_bg_k60.css" />
+
+.folders ul li a {
+	color:${linkColor};
+}
+
+#main header .controls a {
+	background-image:url(controls_g.png);
+}
+#main header .startbtn {
+	background-image:url(start_g.png);
+}
+.scrup,
+.scrdn {
+	background-image:url(pg_g.png);
+}
+.gallery .navigation nav {
+	background-color:#000;
+	background-image:url(bg1.jpg);
+	background-position:center center;
+	background-repeat:repeat-x;
+}
+.gallery .navigation nav a {
+	background-image:url(controls_w.png);	
+}
+.gallery .bottom nav a {
+	background-image:url(buttons_g.png);
+}
+.gallery .bottom .icon {
+	background-image:url(buttons_g.png);
+}
+.gallery .scrollbox {
+	background-color:#000;
+}
+.gallery .scrollbox .scleft,
+.gallery .scrollbox .scright {
+	background-image:url(scroll_g.png);
+}
+.gallery .bottom .cont,
+.gallery .bottom .cont:hover {
+	background-color:#000;
+}

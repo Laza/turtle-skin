@@ -1,0 +1,10 @@
+.rgba .gallery .navigation nav {
+	background-color:rgba(255,255,255,0.8);
+}
+.no-rgba .gallery .navigation nav {
+	background-color:transparent;
+	background-image:url(w80.png);
+}
+.gallery .navigation nav a {
+	background-image:url(controls_c.png);	
+}

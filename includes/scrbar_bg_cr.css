@@ -1,0 +1,12 @@
+.rgba .scrbar {
+	background-color:rgba(0,0,0,0.1);
+}
+.no-rgba .scrbar {
+	background-color:transparent;
+	background-image:url(k10.png);
+}
+.scrup,
+.scrdn {
+	background-image:url(pg_c.png);
+}
+

@@ -1,0 +1,6 @@
+/* 
+	Finally.bsh - closing album creation
+*/
+
+	if ( useSearch )
+		stopSearch();

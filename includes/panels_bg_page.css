@@ -1,0 +1,37 @@
+.gallery .scrollbox,
+.gallery .bottom .cont,
+.gallery .scrollbox:hover,
+.gallery .bottom .cont:hover,
+.no-rgba .gallery .scrollbox,
+.no-rgba .gallery .bottom .cont,
+.no-rgba .gallery .scrollbox:hover,
+.no-rgba .gallery .bottom .cont:hover {
+	background-color:transparent;
+	background-image:url(bg1.jpg);
+	background-position:center center;
+}
+.gallery .scrollbox .scleft,
+.gallery .scrollbox .scright {
+	background-image:url(scroll_w.png);
+}
+.backgroundsize .gallery .scrollbox,
+.backgroundsize .gallery .bottom .cont {
+	-moz-background-size:100% auto;
+	background-size:100% auto;
+}
+.rgba .gallery .scrollbox .cont a:hover, 
+.rgba .gallery .scrollbox .cont a:focus {
+	background-color:rgba(0,0,0,0.4);
+	outline:none;
+}
+.no-rgba .gallery .scrollbox .cont a:hover, 
+.no-rgba .gallery .scrollbox .cont a:focus {
+	background-image:url(k40.png);
+}
+.rgba .gallery .scrollbox .cont a.active {
+	background-color:rgba(0,0,0,0.8);
+}
+.no-rgba .gallery .scrollbox .cont a.active {
+	background-color:transparent;
+	background-image:url(k80.png);
+}

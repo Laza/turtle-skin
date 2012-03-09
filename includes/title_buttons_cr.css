@@ -1,0 +1,22 @@
+#main header .title .controls,
+#main header .startbtn {
+	background-color:rgba(0,0,0,0.4);
+}
+.no-rgba #main header .title .controls {
+	background-color:transparent;
+	background-image:url(k40.png);
+}
+#main header .title .controls a {
+	background-image:url(controls_c.png);
+}
+#main header .startbtn {
+	background-image:url(start_c.png);
+}
+#main header .title .controls:hover,
+#main header .startbtn:hover {
+	background-color:rgba(255,255,255,0.8);
+}
+.no-rgba #main header .title .controls:hover {
+	background-color:transparent;
+	background-image:url(w80.png);
+}

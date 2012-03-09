@@ -1,0 +1,28 @@
+.gallery .bottom nav {
+	border:1px solid #999;
+	color:#222;
+	background-color:#999;
+	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(255,255,255,1)), color-stop(1, rgba(192,192,192,1)));
+	background-image:-webkit-linear-gradient(top, rgba(255,255,255,1), rgba(192,192,192,1) );
+	background-image:-moz-linear-gradient(top, rgba(255,255,255,1), rgba(192,192,192,1) );
+	background-image:-ms-linear-gradient(top, rgba(255,255,255,1), rgba(192,192,192,1) );
+	background-image:linear-gradient(top, rgba(255,255,255,1), rgba(192,192,192,1) );
+	filter:progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#FFFFFFFF,EndColorStr=#FFcccccc);
+	${bs_sl}
+}
+.gallery .bottom nav a {
+	border-left:1px solid #bbb;
+	background-image:url(buttons_w.png);
+}
+.gallery .bottom nav a.active {
+	background-color:rgba(0,0,0,0.2);
+	border-left-color:#888;
+}
+.no-rgba .gallery .bottom nav a.active {
+	background-color:#999;
+}
+.gallery .bottom .icon {
+	background-image:url(buttons_w.png);
+}
+
+

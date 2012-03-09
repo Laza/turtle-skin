@@ -1,0 +1,71 @@
+<%	/* 
+		cssinit.bsh
+		
+		specific variables for the CSS files 
+		to avoid too many beanshell calls
+		as they cause memory leak
+	*/
+	
+	boolean splashVertical = folderImageWidth <= folderImageHeight;
+	String descriptionDisplay = descriptionVisible? "block" : "none";
+	int bottom = engine.isWidgetInjection()? 25 : 0;
+	int scrollBarWidth = 20;
+	int galleryWidth = splashVertical? Math.round(folderImageWidth * 1.5) : folderImageWidth;
+	int galleryWrapWidth = galleryWidth + scrollBarWidth;
+	int galleryMinHeight = maxThumbHeight * 2;
+	int galleryTop = (splashVertical? (showTopNavigation? 40 : 0) : folderImageHeight) + 20;
+	int galleryLeft = (splashVertical? (folderImageWidth + 40) : 0) + scrollBarWidth;
+	int folderGap = (cols > 3)? 6 : 10;
+	int folderPad = 10;
+	int maxFolderWidth = (galleryWidth + folderGap) / cols - folderGap - 2 * folderPad;
+	int maxFolderThumbWidth = maxThumbWidth;
+	int maxFolderThumbHeight = maxThumbHeight;
+	if (maxFolderWidth < maxThumbWidth) {
+		maxFolderThumbWidth = maxFolderWidth;
+		maxFolderThumbHeight = Math.round(maxThumbHeight * maxFolderThumbWidth / maxThumbWidth);
+	}
+	boolean folderVertical = (maxFolderWidth - 2 * folderPad - maxFolderThumbWidth) < 100;
+	int containerWidth = (splashVertical? (folderImageWidth + galleryWidth + 40) : folderImageWidth) + 2 * scrollBarWidth;
+	int thumbCols = Math.floor( galleryWidth / (maxThumbWidth + 10) );
+	int thumbsLeft = (galleryWidth % (maxThumbWidth + 10)) / 2;
+	int thumbScrollerHeight = reducedThumbHeight + 20;
+	int thumbScrollerWidth = Math.max(maxImageWidth, containerWidth) - 40;
+	int reducedThumbWidth10 = reducedThumbWidth + 10;
+	int reducedThumbHeight10 = reducedThumbHeight + 10;
+	int reducedThumbWidth8 = reducedThumbWidth + 8;
+	int reducedThumbHeight8 = reducedThumbHeight + 8;
+	int maxThumbWidth8 = maxThumbWidth + 8;
+	int maxThumbHeight8 = maxThumbHeight + 8;
+	int otherWidth = maxThumbWidth * 2;
+	String imageBorder = (borderWidth > 0)? (borderWidth + "px solid " + borderColor) : "none";
+	int captionWidth = thumbScrollerWidth - 30;
+	int mapWidth = captionWidth - 30;
+
+	// 3D effect styles
+	// Box drop shadow
+	String bs_sd = use3dEffects? "-moz-box-shadow:0px 1px 2px rgba(0,0,0,0.6); -webkit-box-shadow:0px 1px 2px rgba(0,0,0,0.6); box-shadow:0px 1px 2px rgba(0,0,0,0.6);" : "";
+	String bs_md = use3dEffects? "-moz-box-shadow:1px 3px 8px rgba(0,0,0,0.6); -webkit-box-shadow:1px 3px 8px rgba(0,0,0,0.6); box-shadow:1px 3px 8px rgba(0,0,0,0.6);" : "";
+	String bs_ld = use3dEffects? "-moz-box-shadow:2px 5px 16px rgba(0,0,0,0.6); -webkit-box-shadow:2px 5px 16px rgba(0,0,0,0.6); box-shadow:2px 5px 16px rgba(0,0,0,0.6);" : "";
+	String bs_xd = use3dEffects? "-moz-box-shadow:3px 6px 32px rgba(0,0,0,0.6); -webkit-box-shadow:3px 6px 32px rgba(0,0,0,0.6); box-shadow:3px 6px 32px rgba(0,0,0,0.6);" : "";
+	String bs_sm = use3dEffects? "-moz-box-shadow:0px 1px 2px rgba(0,0,0,0.4); -webkit-box-shadow:0px 1px 2px rgba(0,0,0,0.4); box-shadow:0px 1px 2px rgba(0,0,0,0.4);" : "";
+	String bs_mm = use3dEffects? "-moz-box-shadow:1px 3px 8px rgba(0,0,0,0.4); -webkit-box-shadow:1px 3px 8px rgba(0,0,0,0.4); box-shadow:1px 3px 8px rgba(0,0,0,0.4);" : "";
+	String bs_lm = use3dEffects? "-moz-box-shadow:2px 5px 16px rgba(0,0,0,0.4); -webkit-box-shadow:2px 5px 16px rgba(0,0,0,0.4); box-shadow:2px 5px 16px rgba(0,0,0,0.4);" : "";
+	String bs_xm = use3dEffects? "-moz-box-shadow:3px 6px 32px rgba(0,0,0,0.4); -webkit-box-shadow:3px 6px 32px rgba(0,0,0,0.4); box-shadow:3px 6px 32px rgba(0,0,0,0.4);" : "";
+	String bs_sl = use3dEffects? "-moz-box-shadow:0px 1px 2px rgba(0,0,0,0.2); -webkit-box-shadow:0px 1px 2px rgba(0,0,0,0.2); box-shadow:0px 1px 2px rgba(0,0,0,0.2);" : "";
+	String bs_ml = use3dEffects? "-moz-box-shadow:1px 3px 8px rgba(0,0,0,0.2); -webkit-box-shadow:1px 3px 8px rgba(0,0,0,0.2); box-shadow:1px 3px 8px rgba(0,0,0,0.2);" : "";
+	String bs_ll = use3dEffects? "-moz-box-shadow:2px 5px 16px rgba(0,0,0,0.2); -webkit-box-shadow:2px 5px 16px rgba(0,0,0,0.2); box-shadow:2px 5px 16px rgba(0,0,0,0.2);" : "";
+	String bs_xl = use3dEffects? "-moz-box-shadow:3px 6px 32px rgba(0,0,0,0.2); -webkit-box-shadow:3px 6px 32px rgba(0,0,0,0.2); box-shadow:3px 6px 32px rgba(0,0,0,0.2);" : "";
+	// Box inner shadow
+	String bis_sm = use3dEffects? "-moz-box-shadow:inset 0px 1px 2px rgba(0,0,0,0.4); -webkit-box-shadow:inset 0px 1px 2px rgba(0,0,0,0.4); box-shadow:inset 0px 1px 2px rgba(0,0,0,0.4);" : "";
+	String bis_ml = use3dEffects? "-moz-box-shadow:inset 0px 4px 10px rgba(0,0,0,0.4); -webkit-box-shadow:inset 0px 4px 10px rgba(0,0,0,0.4); box-shadow:inset 0px 4px 10px rgba(0,0,0,0.4);" : "";
+	// Text shadow
+	String ts_md = use3dEffects? "text-shadow:2px 3px 6px rgba(0,0,0,0.5);" : "";
+	String ts_sd = use3dEffects? "text-shadow:1px 2px 4px rgba(0,0,0,0.5);" : "";
+
+	String backgroundImage = ( backgroundImageName != void && backgroundImageName.length() > 0 )? urlEncode(backgroundImageName) : "";
+	
+	if (styleName.equals("Black") && textColor.equals("#000000")) {
+		textColor = "#bbbbbb";
+	}
+
+%>
