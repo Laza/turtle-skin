@@ -259,7 +259,7 @@ String filterJunk(String s) {
 String getMeta(String key) {
 	Object o;
 	String v;
-	if (meta != void && meta != null && 
+	if (key != null && meta != void && meta != null && 
 		((o = meta.get(key)) != null ||
 		(o = meta.get("Xmp." + key)) != null ||
 		(o = meta.get("Iptc." + key)) != null ||
@@ -361,7 +361,7 @@ String stripLinebreak(String s) {
 
 String formatPlainText(String s) {
 	if (s == null) return "";
-	return s.replaceAll("\\*([^\\*]+)\\*", "<strong>$1</strong>").replaceAll("\\+([^\\+]+)\\+", "<em>$1</em>").replaceAll("\\_([^\\_]+)\\_", "<u>$1</u>").replaceAll("(\n|\r)", "<br/>").replaceAll("\\!(http\\:[\\w\\./\\-]+[png|gif|jpg])\\!", "<img src=\"$1\" />").replaceAll("\\[((?:http|https|ftp){1}\\:[\\w\\./\\-]+)\\]", "<a href=\"$1\">$1</a>").replaceAll("\\[([^\\|]+)\\|((?:http|https|ftp){1}\\:[\\w\\./\\-]+)\\]", "<a href=\"$2\">$1</a>");
+	return s.replaceAll("\\*([\\w\\s]+)\\*", "<strong>$1</strong>").replaceAll("\\+([\\w\\s]+)\\+", "<em>$1</em>").replaceAll("\\_([\\w\\s]+)\\_", "<u>$1</u>").replaceAll("(\n|\r)", "<br/>").replaceAll("\\!(http\\:[\\w\\./\\-]+[png|gif|jpg])\\!", "<img src=\"$1\" />").replaceAll("\\[((?:http|https|ftp){1}\\:[\\w\\./\\-]+)\\]", "<a href=\"$1\">$1</a>").replaceAll("\\[([^\\|]+)\\|((?:http|https|ftp){1}\\:[\\w\\./\\-]+)\\]", "<a href=\"$2\">$1</a>");
 }
 
 // Wrapping a text in a HTML tag (might contain attributes)
@@ -1038,18 +1038,22 @@ String getRootNavigation(String sep) {
 // Get the whole navigation menu
 
 String getNavigation() {
-	return getNavigation(rootFolder, "", 3, true);
+	return getNavigation(rootFolder, "", 3, true, false);
 }
 
 String getNavigation(boolean home) {
-	return getNavigation(rootFolder, "", 3, home);
+	return getNavigation(rootFolder, "", 3, home, false);
+}
+
+String getNavigation(boolean home, boolean excludeFolders) {
+	return getNavigation(rootFolder, "", 3, home, excludeFolders);
 }
 
 String getNavigation(int depth) {
-	return getNavigation(rootFolder, "", depth, true);
+	return getNavigation(rootFolder, "", depth, true, false);
 }
 
-String getNavigation(AlbumObject folder, String relPath, int depth, boolean home) {
+String getNavigation(AlbumObject folder, String relPath, int depth, boolean home, boolean excludeFolders) {
 	StringBuilder sb = new StringBuilder(2048);
 	boolean isFolder;
 	Category cat;
@@ -1063,16 +1067,19 @@ String getNavigation(AlbumObject folder, String relPath, int depth, boolean home
 	for (AlbumObject ao : folder.getChildren()) {
 		if (ao.isIncluded()) {
 			cat = ao.getCategory();
+			isFolder = cat == Category.folder;
 			
-			if ( (isFolder = (cat == Category.folder)) || cat == Category.webPage ) {
+			if ( (cat == Category.webPage) || (!excludeFolders && isFolder) ) {
 				vars = ao.getVars();
-				path = relp + (isFolder? urlEncode(vars.get("label")) : vars.get("closeupPath")); 
+				path = isFolder? urlEncode(vars.get("label")) : vars.get("closeupPath");
 				
-				sb.append("<li" + ((currentObject.isWithin(ao))? " class=\"actual\"" : "") + ">");
-				sb.append("<a href=\"" + root + path + (isFolder? ("/" + indexName) : "") + "\">" + vars.get("title") + "</a>");				
-				if (cat == Category.folder && depth > 0)
-					sb.append(getNavigation(ao, path, depth - 1, false));
-				sb.append("</li>");
+				if ( !path.equals(indexName) ) {
+					sb.append("<li" + ((currentObject.isWithin(ao))? " class=\"actual\"" : "") + ">");
+					sb.append("<a href=\"" + root + relp + path + (isFolder? ("/" + indexName) : "") + "\">" + vars.get("title") + "</a>");				
+					if (cat == Category.folder && depth > 0)
+						sb.append(getNavigation(ao, relp + path, depth - 1, false, false));
+					sb.append("</li>");
+				}
 			}
 		}
 	}

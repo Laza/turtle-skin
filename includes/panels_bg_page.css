@@ -1,3 +1,4 @@
+.hook,
 .gallery .scrollbox,
 .gallery .bottom .cont,
 .gallery .scrollbox:hover,
@@ -10,6 +11,7 @@
 	background-image:url(bg1.jpg);
 	background-position:center center;
 }
+.hook-s,
 .gallery .scrollbox .scleft,
 .gallery .scrollbox .scright {
 	background-image:url(scroll_w.png);

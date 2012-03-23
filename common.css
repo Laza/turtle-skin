@@ -38,6 +38,11 @@ h5 { font-size:100%; }
 
 .addtop { margin-top:10px; }
 
+.hook { 
+	position:absolute;
+	display:none;
+}
+
 /******************************************* Hint */
 
 .hint {
@@ -542,7 +547,41 @@ a.control:hover {
     text-overflow:ellipsis;
 	${ts_md}
 }
+#main header .breadcrumb {
+	display:inline-block;
+	margin:0.2em 0 0.4em 0;
+	-moz-border-radius:3px;
+	border-radius:3px;
+	background-color:rgba(0,0,0,0.2);
+	${bis_ml}
+}
+.no-rgba #main header .breadcrumb {
+	background-color:transparent;
+	background-image:url(k20.png);
+} 
+#main header .breadcrumb a {
+	display:inline-block;
+	padding:0.25em 0.5em 0.5em 0.5em;
+	${ts_sd}
+}
+#main header .breadcrumb a:hover,
+#main header .breadcrumb a:focus {
+	background-color:rgba(0,0,0,0.5);
+}
+#main header .breadcrumb a:first-child {
+	-moz-border-top-left-radius:3px;
+	-moz-border-bottom-left-radius:3px;
+	border-top-left-radius:3px;
+	border-bottom-left-radius:3px;
+}
+#main header .breadcrumb a:last-child {
+	-moz-border-top-right-radius:3px;
+	-moz-border-bottom-right-radius:3px;
+	border-top-right-radius:3px;
+	border-bottom-right-radius:3px;
+}
 #main header h6 {
+	clear:both;
 	display:${descriptionDisplay};
 	font-size:120%;
 	font-weight:normal;
@@ -701,9 +740,11 @@ a.control:hover {
 	height:40px;
 	max-width:20%;
 	margin-right:2%;
+	text-align:left;
 }
 #navigation .logo a {
 	display:block;
+	height:40px;
 	line-height:40px;
 	overflow:hidden;
 }
@@ -715,6 +756,8 @@ a.control:hover {
 }
 #navigation nav {
 	text-align:center;
+}
+#navigation nav > ul {
 }
 #navigation nav ul {
 	display:inline-block;
@@ -735,6 +778,7 @@ a.control:hover {
 #navigation nav > ul > li {
 	position:relative;
 	display:inline-block;
+	vertical-align:top;
 	width:auto;
 	height:40px;
 }
@@ -896,6 +940,7 @@ a.control:hover {
 }
 .folders p {
 	margin-top:10px;
+	margin-bottom:0;
 }
 .folders p.info {
 	font-size:85%;
@@ -1058,6 +1103,9 @@ a.control:hover {
 	background-repeat:no-repeat;
 	background-position:-50px 0;
 }
+.hook-c {
+	background-image:url(controls.png);	
+}
 .gallery .navigation nav a.prev {
 	background-position:-50px 0;
 	width:70px;
@@ -1216,7 +1264,7 @@ a.control:hover {
 	background-color:transparent;
 	background-image:url(w40.png);
 }
-
+.hook-s,
 .gallery .scrollbox .scleft,
 .gallery .scrollbox .scright {
 	position:absolute;
@@ -1227,7 +1275,6 @@ a.control:hover {
 	background-repeat:no-repeat;
 	background-position:left center;
 }	
-
 .gallery .scrollbox .scleft {
 	left:10px;
 	background-position:0 center;
@@ -1466,7 +1513,6 @@ a.control:hover {
 .gallery .bottom .map .mapcont {
 	position:relative; 
 	overflow:hidden;
-	width:${mapWidth}px;
 	height:240px;
 }
 .gallery .bottom .shop .icon {

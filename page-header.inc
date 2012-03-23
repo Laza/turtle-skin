@@ -11,13 +11,13 @@
 	<meta charset="${textEncoding}">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<title>${title}</title>
-	<ja:if exists="descript"><meta name="description" content="${descript}"></ja:if>
+	<ja:if exists="captionClean"><meta name="description" content="${captionClean}"></ja:if>
 	<ja:if exists="writer"><meta name="author" content="<%= cleanup(writer) %>"></ja:if>
 	<ja:if test="${excludeCredits}" not value="true"><meta name="generator" content="Created with jAlbum &amp; ${skin} - <%= (license != void && license.length() > 0)? license : "unregistered" %>"></ja:if>
 	<ja:if exists="keywords"><meta name="keywords" content="${keywords}"></ja:if> 
 	<ja:if test="${anyShares}">
 	<meta property="og:title" content="<%= cleanup(title) %>" />
-	<ja:if exists="descript"><meta property="og:description" content="${descript}" /></ja:if>
+	<ja:if exists="captionClean"><meta property="og:description" content="${captionClean}" /></ja:if>
 	<ja:if exists="folderThumbPath"><meta property="og:image" content="${folderThumbPath}" >
 	<link rel="image_src" href="${folderThumbPath}"></ja:if>
 	</ja:if>
@@ -51,11 +51,12 @@
 				<ja:if test="<%= useSearch || !isEmpty(pageHeader) || anyShares %>"><aside><%--
 					--%><ja:if exists="pageHeader"><div class="about controls"><a href="javascript:void(0)" title="$text.aboutThisAlbum" class="showhint">&nbsp;</a></div></ja:if><%--
 					--%><ja:if test="${anyShares}"><div class="share controls"><a href="javascript:void(0)">&nbsp;</a></div></ja:if><%--
-					--%><ja:if test="${useSearch}"><div class="search controls"><a href="javascript:void(0)" title="<form class=&#34;searchpage&#34; onsubmit=&#34;Search.start(this);return false;&#34;><input type=&#34;search&#34; class=&#34;searchtext&#34; placeholder=&#34;Search...&#34;><a class=&#34;searchbtn&#34; onclick=&#34;Search.start(this.parentNode);&#34;>&nbsp;</a></form>" class="showhint">&nbsp;</a></div></ja:if><%--
+					--%><ja:if test="${useSearch}"><div class="search controls"><a href="javascript:void(0)" title="<form class=&#34;searchpage&#34; onsubmit=&#34;Search.start(this);return false;&#34;><input type=&#34;search&#34; class=&#34;searchtext&#34; placeholder=&#34;$text.searchBoxTip&#34;><a class=&#34;searchbtn&#34; onclick=&#34;Search.start(this.parentNode);&#34;>&nbsp;</a></form>" class="showhint">&nbsp;</a></div></ja:if><%--
 				--%></aside></ja:if>
 				<hgroup>
 					<h1>${title}</h1>
-					<ja:if test="${pageType}" value="index"><ja:if exists="descript"><h6>${descript}</h6></ja:if></ja:if>
+					<ja:if test="<%= showBreadcrumbPath && !isEmpty(breadcrumbPath) %>"><p class="breadcrumb"><%= breadcrumbPath.replaceAll("a><a", "a>&raquo;<a"); %></p></ja:if>
+					<ja:if test="${pageType}" value="index"><ja:if exists="caption"><h6>${caption}</h6></ja:if></ja:if>
 				</hgroup>
 			</div>
 		</header>

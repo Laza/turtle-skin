@@ -1,6 +1,7 @@
 #These settings are applied when running jAlbum without its window
-#Fri Mar 02 15:51:58 CET 2012
+#Thu Mar 22 22:18:40 CET 2012
 skin.showBottomNavigation=false
+skin.mapVisible=false
 skin.googleSiteID=
 skin.rightClickProtect=false
 skin.fitImages=false
@@ -14,6 +15,7 @@ skin.reduceThumbs=0.66666667
 skin.shareFacebook=false
 skin.watermark=
 skin.showImageCount=true
+skin.shopVisible=false
 skin.afterLast=ask
 skin.shareReddit=false
 skin.imgCaptionTemplate=<h2>${fileLabel}</h2><div class\="comment">${comment}</div>
@@ -24,10 +26,12 @@ skin.newDaysCount=0
 skin.debugVars=
 skin.mapZoom=18
 skin.showFolderImageCount=true
+skin.showFolders=true
 skin.use3dEffects=true
 skin.shopGateway=paypal
 skin.showPhotoDataLabel=true
 skin.textColor=\#bbbbbb
+skin.showBreadcrumbPath=false
 skin.shopCurrency=USD
 skin.stickControlsToTop=false
 skin.uplinkUrl=../
@@ -37,17 +41,18 @@ skin.fontFamily=Arial,Helvetica,sans-serif
 skin.transitionType=crossFadeAndZoom
 skin.showMap=false
 skin.showPhotoData=false
-skin.shopOptions=5x3.75" Print\=0.07\n6x4" Print\=0.1\n6x4.5" Print\=0.15\n7.5x5" Print\=0.3\n9x6" Print\=0.4\n12x8" Print\=1.0\n15x10" Print\=2.0
 skin.useSearch=false
+skin.shopOptions=5x3.75" Print\=0.07\n6x4" Print\=0.1\n6x4.5" Print\=0.15\n7.5x5" Print\=0.3\n9x6" Print\=0.4\n12x8" Print\=1.0\n15x10" Print\=2.0
 skin.backgroundRepeat=stretch
 skin.preZoomThumbs=0
 skin.showImageNumbers=true
-skin.borderWidth=10
 skin.useUplink=false
+skin.borderWidth=10
 skin.audioAutoPlay=false
 skin.backgroundAudioAutoPlay=false
 skin.shareMyspace=false
 skin.backgroundPos=center middle
+skin.topNavigationExcludeFolders=false
 skin.googlePlus=false
 skin.descriptionVisible=true
 skin.footer=
@@ -73,6 +78,7 @@ skin.showFolderDescription=true
 skin.backgroundAudioLoop=false
 skin.guiExists=true
 skin.mapAll=false
+skin.photoDataVisible=false
 skin.shopHandling=
 skin.transitionSpeed=600
 skin.debugMode=false
@@ -90,4 +96,5 @@ skin.slideshowDelay=4
 skin.enableMouseWheel=true
 skin.headerTopLevelOnly=true
 skin.playlist=
+skin.showHelp=true
 skin.twitterTweet=false

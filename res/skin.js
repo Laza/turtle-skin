@@ -1925,8 +1925,13 @@ if ( typeof Search !== UNDEF ) {
 		return this.each(function() {
 						
 			var c = $(this),
-				el = c.find(settings.selector),
-				cw, ch, tw, th, tl, tt, ow, oh,
+				el = c.find(settings.selector);
+				
+			if ( !el.length ) {
+				return;
+			}
+			
+			var	cw, ch, tw, th, tl, tt, ow, oh,
 				ml = settings.marginLeft + settings.padding,
 				mr = settings.marginRight + settings.padding,
 				mt = settings.marginTop + settings.padding,
@@ -2038,6 +2043,9 @@ if ( typeof Search !== UNDEF ) {
 		
 		$.fn.addInput = function( n, v, t, a ) {
 			var i;
+			if ( !v || !n ) {
+				return this;
+			}
 			
 			return this.each(function() {
 				i = $('<input>', { type: (t || 'text') }).appendTo($(this));
@@ -2066,8 +2074,8 @@ if ( typeof Search !== UNDEF ) {
 				
 				for ( i = 0; i < o.length; i++ ) {
 					e.append($('<option>', {
-							val: o[i].val,
-							text: o[i].key + ' (' + currency + ' ' + o[i].val + ')'
+						val: o[i].val,
+						text: o[i].key + ' (' + currency + ' ' + o[i].val + ')'
 					}));
 				}
 				
@@ -2109,7 +2117,8 @@ if ( typeof Search !== UNDEF ) {
 				'price': 	'amount',
 				'copies': 	'add',
 				'shipprice':'shipping',
-				'handling':	'handling_cart'
+				'handling':	'handling_cart',
+				'shopUrl':	'shopping_url'
 			} : {
 				'form':		'google_checkout',
 				'currency':	'item_currency_1',
@@ -2181,6 +2190,9 @@ if ( typeof Search !== UNDEF ) {
 				}
 				fs.addInput(id.title, settings.file, 'hidden');
 				fs.addInput(id.select, o[0].key, 'hidden');
+				fs.addInput(id.shopUrl, window.location.href, 'hidden');
+				fs.addInput('charset', 'utf-8', 'hidden');
+				fs.addInput('lc', settings.locale, 'hidden');
 				
 				fs.append($('<input>', {
 					id: 'shopAdd',
@@ -2200,6 +2212,7 @@ if ( typeof Search !== UNDEF ) {
 				fv.addInput('cmd', '_cart', 'hidden');
 				fv.addInput('display', 1, 'hidden');
 				fv.addInput(id.seller, settings.id, 'hidden');
+				fv.addInput('lc', settings.locale, 'hidden');
 				fv.append($('<input>', {
 					id: 'shopView',
 					type: 'image',
@@ -2243,8 +2256,9 @@ if ( typeof Search !== UNDEF ) {
 				}));
 			}
 			
-			fs.add(fv).find('input[name=submit]').click( function() {
-				window.open('',settings.target,'width=960,height=600,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,directories=no,status=no,copyhistory=no');
+			fs.add(fv).find('input[name=submit]').on( 'submit', function() {
+				window.open('', settings.target, 'width=960,height=600,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,directories=no,status=no,copyhistory=no');
+				return true;
 			});
 				
 		});
@@ -2253,7 +2267,8 @@ if ( typeof Search !== UNDEF ) {
 	$.fn.setupShop.defaults = {
 		target: 'ShoppingCart',
 		currency: 'EUR',
-		gateway: 'paypal'
+		gateway: 'paypal',
+		locale: 'US'
 	};
 
 	// getLatLng :: returns google.maps position from formatted string "lat,lon" or Array(lat, lon)
@@ -2291,10 +2306,9 @@ if ( typeof Search !== UNDEF ) {
 			var t = $(this), ll, label, map, tmp, to;
 			
 			t.readData( settings, "type,zoom,map,label,resPath,markers" );
-			t.width(t.parents('.cont').width() - 30);
 			
 			var adjust = function() {
-				if ( t.width() && t.height() && t.data('fresh') ) { 
+				if ( t.is(':visible') && t.width() && t.height() && t.data('fresh') ) { 
 					t.width(t.parents('.cont').width() - 30);
 					google.maps.event.trigger( map, 'resize' );
 					map.setCenter( ll );
@@ -2429,7 +2443,71 @@ if ( typeof Search !== UNDEF ) {
 	$.fn.markFoldersNew.defaults = {
 		markNewDays: 7,		// day count :: 0 = no mark
 		newLabel: 'NEW'
-	};	
+	};
+
+	
+	// turtleHelp :: sets up help for button and keyboard's F1 key
+	
+	$.fn.turtleHelp = function( settings, text ) {
+		
+		settings = $.extend( {}, $.fn.turtleHelp.defaults, settings );
+		text = $.extend( {}, $.fn.turtleHelp.texts, text );
+		
+		var helpWindow = $(settings.templ.template(text.help));
+		
+		var showHelp = function() {
+			helpWindow.alertBox({
+				width: 680
+			});
+		};
+		
+		if ( settings.useF1 && !$.support.touch ) {
+			$(document).keydown(function(e) {
+				if ( document.activeElement && document.activeElement.nodeName === 'INPUT' || 
+					( $.isFunction(settings.enableKeyboard) && !settings.enableKeyboard()) || 
+					$('#modal:visible').length ) 
+					return true;
+				var k = e? e.keyCode : window.event.keyCode;
+				if ( k === 112 ) {
+					showHelp();
+					return false;
+				}
+				return true;
+			});
+		}
+		
+		return this.each(function() {
+			$(this).click(function() {
+				showHelp();
+				return false;
+			});			
+		});	
+	};
+	
+	$.fn.turtleHelp.defaults = {
+		useF1: true
+	};
+	
+	$.fn.turtleHelp.texts = {
+		help: [
+			'Using Turtle gallery',
+			'Top <b>navigation</b> bar with <b>Home</b> button',
+			'<b>Up</b> one level <em>Up arrow</em>',
+			'Author or company <b>information</b>',
+			'<b>Share</b> and <b>Like</b> buttons for social networking',
+			'<b>Search</b> button',
+			'Start slideshow <em>Numpad *</em>',
+			'Previous image <em>Left arrow</em>', 
+			'Back to index page <em>Esc</em>', 
+			'Toggle zoom (fit/1:1) <em>Numpad +</em>',
+			'Toggle info window <em>Numpad -</em>',
+			'Toggle thumbnail scoller',
+			'Start / Stop slideshow <em>Numpad *</em>', 
+			'Next image <em>Right arrow</em>',
+			'Swipe for previous / next image'
+		]
+	};
+	
 	
 	/* *******************************************************
 	*
@@ -2442,7 +2520,6 @@ if ( typeof Search !== UNDEF ) {
 		settings = $.extend( {}, $.fn.turtleGallery.defaults, settings );
 		text = $.extend( {}, $.fn.turtleGallery.texts, text );
 		id = $.extend( {}, $.fn.turtleGallery.ids, id );
-		var helpWindow = settings.skipIndex? $(settings.helpgall.template(text.help)) : $(settings.help.template(text.help));
 		
 		if ( !settings.licensee && location.protocol.startsWith('http') && !cookie('ls') ) {
 			var logo = settings.resPath + '/logo.png';
@@ -2480,12 +2557,7 @@ if ( typeof Search !== UNDEF ) {
 				settings[sn[i]] = c;
 			}
 		}
-		
-		// Displaying skin help
-		var showHelp = function( s ) {
-			s.alertBox({width: 680});
-		};
-		
+				
 		if ( $.support.touch ) {
 			settings.preScale = false;
 		}
@@ -2494,6 +2566,13 @@ if ( typeof Search !== UNDEF ) {
 		$.fn.setupMap.defaults.zoom = settings.mapZoom;
 		$.fn.setupMap.defaults.type = settings.mapType;
 		$.fn.setupMap.defaults.markerPath = settings.markerPath;
+		
+		// Setting up addShop defaults
+		$.fn.setupShop.defaults.gateway = settings.shopGateway;
+		$.fn.setupShop.defaults.id = settings.shopId;
+		$.fn.setupShop.defaults.currency = settings.shopCurrency;
+		$.fn.setupShop.defaults.handling = settings.shopHandling;
+		$.fn.setupShop.defaults.locale = settings.shopLocale;
 		
 		// Setting up addPlayer defaults
 		$.fn.addPlayer.defaults.bgcolor = $('body').css('background-color').rgb2hex(),
@@ -2546,10 +2625,7 @@ if ( typeof Search !== UNDEF ) {
 					$('#modal:visible').length ) 
 					return true;
 				var k = e? e.keyCode : window.event.keyCode;
-				if ( k === 112 ) {
-					showHelp( helpWindow );
-				}
-				else if ( gallery.is(':visible') ) {
+				if ( gallery.is(':visible') ) {
 					switch( k ) {
 						case 106: case 179: if (to) stopAuto(); else startAuto(); break;
 						case 109: togglePanels(); break;
@@ -3245,9 +3321,17 @@ if ( typeof Search !== UNDEF ) {
 			
 			var createInfo = function(im, n) {
 				bottom = $('<div>', { 'class': id.bottom });
-				var c = $('<div>', { 'class': id.cont }).appendTo(bottom);
-				var m = $('<nav>').appendTo(c);
-				var d, h;
+				
+				// Appending to current image layer
+				cimg.append( bottom );
+				
+				var c = $('<div>', { 'class': id.cont }).appendTo(bottom),
+					m = $('<nav>').appendTo(c),
+					d, h, tw = Math.round(cimg.width() * 0.8) - 30;
+				
+				if ( c.width() > tw ) {
+					c.width( tw );
+				}
 				
 				if ( settings.showImageNumbers ) {
 					c.append('<div class="nr"><strong>' + (n + 1) + '</strong> / ' + images.length + '</div>');
@@ -3278,7 +3362,9 @@ if ( typeof Search !== UNDEF ) {
 							
 							if ( t === id.map ) {
 								var ma = function() {
-									e.children('.' + id.mapcont).trigger('adjust'); 
+									if ( o ) {
+										e.children('.' + id.mapcont).trigger('adjust'); 
+									}
 								};
 								if ( settings.transitions ) {
 									e.slideToggle('fast', ma);
@@ -3314,9 +3400,6 @@ if ( typeof Search !== UNDEF ) {
 					}, settings.speed );
 				}
 				
-				// Appending to current image layer
-				cimg.append( bottom );
-				
 				// Adding content
 				c.children( '.' + id.panel ).each(function() {
 					e = $(this);
@@ -3324,6 +3407,7 @@ if ( typeof Search !== UNDEF ) {
 					if ( t && (d = im.data(t)) != null ) {
 						if ( t === id.map ) {
 							var mc = $('<div>', { 'class': id.mapcont }).appendTo(e);
+							mc.width(c.width() - 30);
 							if ( settings.mapAll ) {
 								mc.setupMap({
 									click: function() { showImg( this.link ); },
@@ -3339,10 +3423,6 @@ if ( typeof Search !== UNDEF ) {
 						} else if ( t === id.shop ) {
 							e.addClass('clearfix').setupShop({
 								file: im.attr('src').replace('thumbs/', ''),
-								gateway: settings.shopGateway,
-								id: settings.shopId,
-								currency: settings.shopCurrency,
-								handling: settings.shopHandling,
 								options: d
 							});
 						} else {
@@ -3403,9 +3483,6 @@ if ( typeof Search !== UNDEF ) {
 					settings.uplink = b.attr('href');
 				}
 				
-				$('[role=main]').find('a.' + id.help).click( function() {
-					showHelp( helpWindow );
-				});
 			};
 			
 			// Creating the control strip
@@ -3685,7 +3762,6 @@ if ( typeof Search !== UNDEF ) {
 				$.history.init(function(hash) {
 					if ( hash && hash.length ) {
 						var n = (settings.hash === 'number')? ((parseInt( hash ) || 1) - 1) : findImg( hash );
-						//log('history: ' + n);
 						showImg( n );
 						settings.slideshowAuto = false;
 					} else {
@@ -3761,9 +3837,7 @@ if ( typeof Search !== UNDEF ) {
 		videoFit: true,				// Stretch to player size
 		videoWidth: 640,			// Video player size
 		videoHeight: 480,
-		controlbarHeight: 24,
-		help: '<h2>{0}</h2><ul class="help index"><li><span>1</span>{1}</li><li><span>2</span>{2}</li><li><span>3</span>{3}</li><li><span>4</span>{4}</li><li><span>5</span>{5}</li><li><span>6</span>{6}</li></ul><hr><ul class="help gall"><li><span>1</span>{7}</li><li><span>2</span>{8}</li><li><span>3</span>{9}</li><li><span>4</span>{10}</li><li><span>5</span>{11}</li><li><span>6</span>{12}</li><li><span>7</span>{13}</li></ul><p>{14}</p>',
-		helpgall: '<h2>{0}</h2><ul class="help gall"><li><span>1</span>{7}</li><li><span>2</span>{8}</li><li><span>3</span>{9}</li><li><span>4</span>{10}</li><li><span>5</span>{11}</li><li><span>6</span>{12}</li><li><span>7</span>{13}</li></ul><p>{14}</p>'
+		controlbarHeight: 24
 	};
 	
 	$.fn.turtleGallery.texts = {
@@ -3799,24 +3873,7 @@ if ( typeof Search !== UNDEF ) {
 		shopBtn: 'Buy',
 		shopLabel: 'Show options to buy this item',
 		shareBtn: 'Share',
-		shareLabel: 'Share this photo over social sites',
-		help: [
-			'Using Turtle gallery',
-			'Top <b>navigation</b> bar with <b>Home</b> button',
-			'<b>Up</b> one level <em>Up arrow</em>',
-			'Author or company <b>information</b>',
-			'<b>Share</b> and <b>Like</b> buttons for social networking',
-			'<b>Search</b> button',
-			'Start slideshow <em>Numpad *</em>',
-			'Previous image <em>Left arrow</em>', 
-			'Back to index page <em>Esc</em>', 
-			'Toggle zoom (fit/1:1) <em>Numpad +</em>',
-			'Toggle info window <em>Numpad -</em>',
-			'Toggle thumbnail scoller',
-			'Start / Stop slideshow <em>Numpad *</em>', 
-			'Next image <em>Right arrow</em>',
-			'Swipe for previous / next image'
-		]
+		shareLabel: 'Share this photo over social sites'
 	};
 	
 	$.fn.turtleGallery.ids = {		// Class names and data- id's
@@ -3866,7 +3923,6 @@ if ( typeof Search !== UNDEF ) {
 		showThumbs: 'showthumbs',
 		play: 'play',
 		pause: 'pause',
-		help: 'helpbtn',
 		newItem: 'newlabel',
 		showHint: 'showhint'
 	};

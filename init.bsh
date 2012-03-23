@@ -210,6 +210,9 @@ String logo;
 // Debug mode? Don't use the minified javascript libraries.
 String min = (debugMode != void && debugMode != null && debugMode)? "" : ".min";
 
+// Country code as Paypal likes it
+String shopLocale;
+
 // Initializing the skin (runs once per make)
 
 private void initSkin() {
@@ -290,6 +293,10 @@ private void initSkin() {
 
 	if ( useSearch )
 		startSearch(new File(resDirectory, "search.js"));
+	
+	shopLocale = lang.toUpperCase();
+	if ( shopLocale.equals("EN") )
+		shopLocale = "US";
 }
 
 initSkin();
@@ -322,8 +329,8 @@ String uplink;
 String pageHeader;
 String pageFooter;
 
-// Description for the <head> <meta> tags
-String descript;
+// Description for the <head> and <meta> tags
+String cleanDescription;
 
 // Counters for the different items found on a page
 int folderCount, folderImgCount, thumbCount, imageCount, videoCount, audioCount, otherCount, shopCount, locationCount;
@@ -334,23 +341,20 @@ String relPath;
 // Extra variables (on image pages)
 
 // caption = the formatted caption based on the captionTemplate
-String thumbCaption;
 String caption;
-
-// alt text for the current image
-String altText;
+String captionClean;
 
 // image type = "image" | "video" | "audio" | "other" | "unknown"
-String imageType;
+// String imageType;
 
 // image number - folders excluded
 int _imageNum;
 
 // photo data =  the compiled photo data string based on the photoDataTemplate
-String photoData;
+// String photoData;
 
 // Location data formatted as 00.0000,-00.0000
-String coords;
+// String coords;
 
 // Initializing counters
 
@@ -398,17 +402,19 @@ void initPage() {
 		currentHtml = urlEncode(fileName.replace(".htt", ".html"));
 		uplink = pageName;
 		skipIndex = false;
-		descript = cleanup(stripHTML(comment));
-		comment = engine.processTemplate((preFormat != void && preFormat)? formatPlainText(comment) : comment);
+		caption = engine.processTemplate((preFormat != void && preFormat)? formatPlainText(comment) : comment);
+		captionClean = cleanup(stripHTML(caption));
 
-		topNavigation = showTopNavigation? getNavigation(isEmpty(logo)) : "";
+		topNavigation = showTopNavigation? getNavigation(isEmpty(logo), topNavigationExcludeFolders) : "";
 		bottomNavigation = showBottomNavigation? getRootNavigation() : "";
+		
+		_imageNum = 0;
 		
 	} else {
 		
 		currentHtml = pageName;
 		relPath = urlEncode(getRelPath());
-		topNavigation = showTopNavigation? getNavigation(isEmpty(logo) && level > 0) : "";
+		topNavigation = showTopNavigation? getNavigation(isEmpty(logo) && level > 0, topNavigationExcludeFolders) : "";
 		bottomNavigation = showBottomNavigation? getRootNavigation() : "";
 			
 		breadcrumbPath = getBreadcrumbPath();
@@ -420,8 +426,9 @@ void initPage() {
 		skipIndex = skipThumbnailPage && folderCount == 0 && imageCount > 0;
 		
 		// Using comment variable universally on any page type
-		comment = (description == void || isEmpty(description))? "" : description;
-		descript = cleanup(comment);
+		caption = (description == void || isEmpty(description))? "" : 
+			engine.processTemplate((preFormat != void && preFormat)? formatPlainText(description) : description);
+		captionClean = cleanup(stripHTML(caption));
 		
 		_imageNum = 0;
 		
@@ -455,7 +462,7 @@ void initPage() {
 	
 	if ( useSearch ) {
 		startPageSearch(relPath);
-		addSearchItem(currentHtml, new String[] { title, isEmpty(descript)? "" : descript, (keywords == void || keywords == null)? "" : keywords });
+		addSearchItem(currentHtml, new String[] { title, isEmpty(caption)? "" : caption, (keywords == void || keywords == null)? "" : keywords });
 	}
 }
 
@@ -488,7 +495,7 @@ void getFooterLinks() {
 	if (showHelp != void && showHelp) {
 		if (first) first = false; 
 		else sb.append(sep);
-		sb.append("<a href=\"javascript:void(0)\" title=\"" + getText("getHelp") + "\" class=\"helpbtn showhint\">" + getText("help") + "</a>");
+		sb.append("<a href=\"javascript:void(0)\" class=\"helplink\" title=\"" + getText("getHelp") + "\" class=\"helpbtn showhint\">" + getText("help") + "</a>");
 	}
 	
 	footerLinks = sb.toString();
@@ -539,6 +546,8 @@ void updateLocal() {
 	if ( folder != void && folder != null ) { 
 		_title = (title == void || title == null)? label.replaceAll("_", " ") : title;
 		_caption = local.get("description");
+		if ( preFormat != void && preFormat )
+			_caption = formatPlainText(stripLinebreak(_caption));
 		_fileCount = engine.countFiles(currentFile);
 		Map vars = (Map)currentObject.getVars();
 		_modifiedDays = (newDaysRef == 0)? folderDateTakenDays() : folderModifiedDays();

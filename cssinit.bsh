@@ -12,7 +12,7 @@
 	int scrollBarWidth = 20;
 	int galleryWidth = splashVertical? Math.round(folderImageWidth * 1.5) : folderImageWidth;
 	int galleryWrapWidth = galleryWidth + scrollBarWidth;
-	int galleryMinHeight = maxThumbHeight * 2;
+	int galleryMinHeight = Math.min(maxThumbHeight * 2, 200);
 	int galleryTop = (splashVertical? (showTopNavigation? 40 : 0) : folderImageHeight) + 20;
 	int galleryLeft = (splashVertical? (folderImageWidth + 40) : 0) + scrollBarWidth;
 	int folderGap = (cols > 3)? 6 : 10;

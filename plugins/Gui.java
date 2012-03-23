@@ -172,6 +172,7 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 		ControlPanel general = new ControlPanel() {
 
 			JCheckBox skipThumbnailPage = new JCheckBox(texts.getString("ui.skipThumbnailPage"));
+			JCheckBox showFolders = new JCheckBox(texts.getString("ui.showFolders"), true);
 			JTextField slideshowDelay = new JSmartTextField("4", 3);
 			JCheckBox slideshowLoop = new JCheckBox(texts.getString("ui.loop"));
 			JCheckBox slideshowAuto = new JCheckBox(texts.getString("ui.autoStart"));
@@ -190,6 +191,9 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 				JCheckBox descriptionVisible = new JCheckBox(texts.getString("ui.descriptionVisible"), true);
 				JCheckBox thumbnailsVisible = new JCheckBox(texts.getString("ui.thumbnailsVisible"));
 				JCheckBox infoPanelVisible = new JCheckBox(texts.getString("ui.infoPanelVisible"));
+				JCheckBox photoDataVisible = new JCheckBox(texts.getString("ui.photoData"));
+				JCheckBox mapVisible = new JCheckBox(texts.getString("ui.map"));
+				JCheckBox shopVisible = new JCheckBox(texts.getString("ui.sellingPhotos"));
 				JCheckBox fitImages = new JCheckBox(texts.getString("ui.fitImages"));
 				JCheckBox fitShrinkonly = new JCheckBox(texts.getString("ui.fitShrinkonly"));
 				
@@ -204,6 +208,10 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 					add(descriptionVisible);
 					add("br", thumbnailsVisible);
 					add("br", infoPanelVisible);
+					add("br", new JLabel(texts.getString("ui.show")));
+					add(" ", photoDataVisible);
+					add(" ", mapVisible);
+					add(" ", shopVisible);
 					add("br", fitImages);
 					add(" ", fitShrinkonly);
 				}
@@ -211,6 +219,7 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 			
 			{
 				skipThumbnailPage.setToolTipText(texts.getString("ui.skipThumbnailPageInfo"));
+				showFolders.setToolTipText(texts.getString("ui.showFoldersInfo"));
 				slideshowDelay.setToolTipText(texts.getString("ui.slideshowDelayInfo"));
 				newDaysCount.setToolTipText(texts.getString("ui.newDaysCountInfo"));
 				afterLast.setToolTipText(texts.getString("ui.afterLastInfo"));
@@ -219,6 +228,7 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 				ComponentUtilities.whenSelectedEnable(preFormat, new JComponent[]{formattingHint1h, formattingHint2h, formattingHint1f, formattingHint2f});
 
 				add("", skipThumbnailPage);
+				add("br", showFolders);
 				add("br", new JLabel(texts.getString("ui.slideshowDelay")));
 				add("", slideshowDelay);
 				add(" ", slideshowLoop);
@@ -235,22 +245,40 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 			
 		ControlPanel header = new ControlPanel() {
 			
-			JCheckBox showTopNavigation = new JCheckBox(texts.getString("ui.showTopNavigation"), true);	
+			JCheckBox showTopNavigation = new JCheckBox(texts.getString("ui.showTopNavigation"), true);
+			JCheckBox topNavigationExcludeFolders = new JCheckBox(texts.getString("ui.excludeFolders"), false);
 			JTextField logoName = new JSmartTextField(30);
 			JButton selectLogo = new JButton(texts.getString("ui.select"));
 			JCheckBox useUplink = new JCheckBox(texts.getString("ui.useUplink"), false);
 			JTextField uplinkUrl = new JSmartTextField("../", 10);
+			JCheckBox showBreadcrumbPath = new JCheckBox(texts.getString("ui.useBreadcrumbPath"), false);
 			JTextField folderImageSize = new JSmartTextField(10);
 			Integer folderImageWidth = Integer.parseInt(engine.getImageSize().split("x")[0]);
 			Integer folderImageHeight = Integer.parseInt(engine.getImageSize().split("x")[1]) / 2;
 			JCheckBox useSearch = new JCheckBox(texts.getString("ui.useSearchBox"));
-			// JCheckBox displayHelpButton = new JCheckBox(texts.getString("ui.displayHelpButton"), true);
-			JCheckBox headerTopLevelOnly = new JCheckBox(texts.getString("ui.topLevelOnly"), true);
-			JTextArea header = new JSmartTextArea(6, 40);
-			JScrollPane headerPane = new JScrollPane(header);
 			
+			ControlPanel headerPanel = new ControlPanel(texts.getString("ui.albumInfo")) {
+				
+				JCheckBox headerTopLevelOnly = new JCheckBox(texts.getString("ui.topLevelOnly"), true);
+				JTextArea header = new JSmartTextArea(6, 40);
+				JScrollPane headerPane = new JScrollPane(header);
+				
+				{
+					header.setEditable(true);
+					header.setLineWrap(true);
+					header.setWrapStyleWord(true);
+					header.setToolTipText(texts.getString("ui.customContentInfo"));
+				
+					add(headerTopLevelOnly);
+					add("br hfill", headerPane);
+					add("br", formattingHint1h);
+					add("br", formattingHint2h);
+				}
+			};
+
 			{
 				showTopNavigation.setToolTipText(texts.getString("ui.showTopNavigationInfo"));
+				topNavigationExcludeFolders.setToolTipText(texts.getString("ui.excludeFoldersInfo"));
 				selectLogo.addActionListener(new ActionListener() { 
 					public void actionPerformed(ActionEvent e) {
 						getFileToRes(imgFilter, logoName);
@@ -259,30 +287,23 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 				useUplink.setToolTipText(texts.getString("ui.useUplinkInfo"));
 				uplinkUrl.setToolTipText(texts.getString("ui.useUplinkInfo"));
 				ComponentUtilities.whenSelectedEnable(useUplink, new JComponent[]{uplinkUrl});
+				showBreadcrumbPath.setToolTipText(texts.getString("ui.useBreadcrumbPathInfo"));
 				folderImageSize.setText(folderImageWidth.toString() + "x" + folderImageHeight.toString());
 				folderImageSize.setToolTipText(texts.getString("ui.folderImageSizeInfo"));
 				useSearch.setToolTipText(texts.getString("ui.useSearchBoxInfo"));
-				// displayHelpButton.setToolTipText(texts.getString("ui.displayHelpButtonInfo"));
-				header.setEditable(true);
-				header.setLineWrap(true);
-				header.setWrapStyleWord(true);
-				header.setToolTipText(texts.getString("ui.customContentInfo"));
 				
 				add("", showTopNavigation);
+				add("tab", topNavigationExcludeFolders);
 				add("br", new JLabelFor(texts.getString("ui.logo"), logoName));
 				add("hfill", logoName);
 				add("", selectLogo);
 				add("br", useUplink);
 				add("hfill", uplinkUrl);
+				add("br", showBreadcrumbPath);
 				add("br", new JLabel(texts.getString("ui.folderImageSize")));
 				add("", folderImageSize);
 				add("br", useSearch);
-				// add("br", displayHelpButton);
-				add("br", new JLabel(texts.getString("ui.albumInfo")));
-				add("tab", headerTopLevelOnly);
-				add("br hfill", headerPane);
-				add("br", formattingHint1h);
-				add("br", formattingHint2h);
+				add("br hfill", headerPanel);
 			}
 		};
 		
@@ -293,20 +314,32 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 			JTextField customLink = new JSmartTextField();
 			JTextField customLinkText = new JSmartTextField();
 			JCheckBox showHelp = new JCheckBox(texts.getString("ui.displayHelpButton"), true);	
-			JCheckBox footerTopLevelOnly = new JCheckBox(texts.getString("ui.topLevelOnly"), false);
-			JTextArea footer = new JSmartTextArea(6, 40);
-			JScrollPane footerPane = new JScrollPane(footer);
 			
+			ControlPanel footerPanel = new ControlPanel(texts.getString("ui.customContent")) {
+				
+				JCheckBox footerTopLevelOnly = new JCheckBox(texts.getString("ui.topLevelOnly"), false);
+				JTextArea footer = new JSmartTextArea(6, 40);
+				JScrollPane footerPane = new JScrollPane(footer);
+				
+				{
+					footer.setEditable(true);
+					footer.setLineWrap(true);
+					footer.setWrapStyleWord(true);
+					footer.setToolTipText(texts.getString("ui.customContentInfo"));
+				
+					add(footerTopLevelOnly);
+					add("br hfill", footerPane);
+					add("br", formattingHint1f);
+					add("br", formattingHint2f);
+				}
+			};
+
 			{
 				showImageCount.setToolTipText(texts.getString("ui.showFolderImageCountInfo"));
 				showBottomNavigation.setToolTipText(texts.getString("ui.showBottomNavigationInfo"));
 				customLink.setToolTipText(texts.getString("ui.customLinkInfo"));
 				customLinkText.setToolTipText(texts.getString("ui.customLinkTextInfo"));
 				showHelp.setToolTipText(texts.getString("ui.displayHelpButtonInfo"));
-				footer.setEditable(true);
-				footer.setLineWrap(true);
-				footer.setWrapStyleWord(true);
-				footer.setToolTipText(texts.getString("ui.customContentInfo"));
 
 				add("", showImageCount);
 				add("br", showBottomNavigation);
@@ -315,11 +348,7 @@ public class Gui extends se.datadosen.jalbum.CompiledScript {
 				add("br", new JLabel(texts.getString("ui.customLinkText")));
 				add("tab hfill", customLinkText);
 				add("br", showHelp);
-				add("br", new JLabel(texts.getString("ui.customContent")));
-				add("tab", footerTopLevelOnly);
-				add("br hfill", footerPane);
-				add("br", formattingHint1f);
-				add("br", formattingHint2f);
+				add("br hfill", footerPanel);
 			}
 		};
 

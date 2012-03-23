@@ -52,6 +52,7 @@
 					slideshowAuto: ${slideshowAuto},
 					afterLast: '${afterLast}',
 					infoOn: ${infoPanelVisible},
+					metaOn: ${photoDataVisible},
 					thumbsOn: ${thumbnailsVisible},
 					shareOn: ${anyShares},
 					showImageNumbers: <ja:if test="${showImageNumbers}" value="false">false</ja:if><ja:else>true</ja:else>,
@@ -72,16 +73,19 @@
 					videoHeight: ${videoHeight},
 					</ja:if>
 					<ja:if test="${locationCount}" not value="0">
+					mapOn: ${mapVisible},
 					mapType: '${mapType}',
 					mapZoom: ${mapZoom},
 					mapAll: ${mapAll},
 					markerPath: '${resPath}/marker.png',
 					</ja:if>
 					<ja:if test="${shopCount}" not value="0">
+					shopOn: ${shopVisible},
 					shopGateway: '${shopGateway}',
 					shopId: '${shopId}',
 					shopCurrency: '${shopCurrency}',
 					shopHandling: '${shopHandling}',
+					shopLocale: '${shopLocale}',
 					</ja:if>
 					enableKeyboard: ${enableKeyboard},
 					enableMouseWheel: ${enableMouseWheel},
@@ -91,8 +95,7 @@
 					licensee: '${license}',
 					numberLinks: <%= (numberLinks != void && numberLinks)? "true" : "false" %>
 				}, {
-					${jsTexts},
-					${helpTexts}
+					${jsTexts}
 				});
 			}
 			<ja:if test="${newDaysCount}" not value="0">
@@ -103,6 +106,14 @@
 				});
 			}</ja:if>
 			</ja:if>
+			
+			$('.helplink').turtleHelp({
+				useF1: ${enableKeyboard},					
+				templ: <ja:if test="${skipIndex}">'<h2>{0}</h2><ul class="help gall"><li><span>1</span>{7}</li><li><span>2</span>{8}</li><li><span>3</span>{9}</li><li><span>4</span>{10}</li><li><span>5</span>{11}</li><li><span>6</span>{12}</li><li><span>7</span>{13}</li></ul><p>{14}</p>'</ja:if>
+				<ja:else>'<h2>{0}</h2><ul class="help index"><li><span>1</span>{1}</li><li><span>2</span>{2}</li><li><span>3</span>{3}</li><li><span>4</span>{4}</li><li><span>5</span>{5}</li><li><span>6</span>{6}</li></ul><hr><ul class="help gall"><li><span>1</span>{7}</li><li><span>2</span>{8}</li><li><span>3</span>{9}</li><li><span>4</span>{10}</li><li><span>5</span>{11}</li><li><span>6</span>{12}</li><li><span>7</span>{13}</li></ul><p>{14}</p>'</ja:else>
+			}, {
+				${helpTexts}
+			});
 			
 			var alignCtr = {
 			<ja:if test="${splashVertical}">

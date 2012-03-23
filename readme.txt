@@ -4,6 +4,59 @@
 
 ------------------------------------------------------
 
+Version 3.0.3 Mar 22, 2012
+
+New features:
+- You can have the breadcrumb path displayed below the page title
+
+Fixed:
+- Paypal shopping cart opened in the main window, replacing the album (not as a popup) on IE
+- Map did not display properly in certain circumstances
+- void "Help" link on pages without images
+- Preformat text and target="_blank" in links might conflict
+- "Search..." placeholder text in the search box made translateable
+
+Updated:
+- French translation
+
+Known issues:
+- Sending locale information to Paypal has implemented, though it doesn't seem to accept
+
+------------------------------------------------------
+
+Version 3.0.2 Mar 15, 2012
+
+New features:
+- You can set the default visibility of the Photo data, Map and Selling photos panels, 
+  that is you can show them by default, the visitors don't need to click the toggle button
+- You can skip the folders from the top navigation bar - useful if you have too many folders
+
+Fixed:
+- Handling the folder descriptions (preformatting and using variables) is unified throughout 
+  the albums
+- Multi-line menus look better (don't overlap the page title)
+- Map did not display in full width after hiding and showing the panel again
+
+------------------------------------------------------
+
+Version 3.0.1 Mar 13, 2012
+
+New features:
+- You can skip the folders from the thumbnail list (if you prefer the top navigation bar)
+- Option to remove the "Help" link from the footer area
+
+Fixed:
+- Top navigation bar was too deep on IE and FireFox
+- Links in folder descriptions got broken in the header
+- Replacing index.htt with your own caused an extra "index" link in the navigation bars
+- Control bar and panel background graphics could disppear and re-appear only after a page refresh
+- The logo in the top navigation could run out of the bar 
+
+Updated:
+- French translation
+
+------------------------------------------------------
+
 Version 3.0.0 Mar 01, 2012
 
 New features:

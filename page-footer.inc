@@ -12,6 +12,7 @@
 		</div>
 		<ja:if exists="pageHeader"><div class="header hidden">${pageHeader}</div></ja:if>
 	</div></div>
+	<div class="hook"><span class="hook-b">&nbsp;</span><span class="hook-c">&nbsp;</span></div>
 
 	<%-- Background audio --%>
 	<ja:if exists="backgroundAudio">

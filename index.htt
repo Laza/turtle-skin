@@ -3,7 +3,7 @@
 			<%-- Iterate through folders and images --%>
 			
 				<%-- Folders --%>
-				<ja:if test="${folderCount}" not value="0"><div class="folders">
+				<ja:if test="<%= folderCount != void && folderCount > 0 && (showFolders == void || showFolders) %>"><div class="folders">
 					<ul class="clearfix"><% i = 0; %><ja:fileiterator dirs>
 					<%	updateLocal();
 						out.print("<li" + ((i % cols == 0)?" style=\"clear:left;\"" : "") + ">");
@@ -11,7 +11,7 @@
 							"\"" + attr("alt", cleanup(_title)) + attr("width", thumbWidth) + attr("height", thumbHeight) + data("modified", _modifiedDays) + " /></a></aside>");
 						out.print("<div class=\"data\"><h4><a href=\"" + _link + "\">" + stripLinebreak(_title) + "</a></h4>");
 						if ( showFolderDescription && !isEmpty(_caption) ) 
-							out.print("<p>" + stripLinebreak(_caption) + "</p>");
+							out.print("<p>" + _caption + "</p>");
 						if ( showFolderImageCount && _fileCount > 0 )
 							out.print("<p class=\"info\">" + _fileCount + " " + ((_fileCount > 1)? "$text.images" : "$text.image") + "</p>");
 						out.print("</div></li>");

@@ -10,6 +10,7 @@
 	filter:progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#FFFFFFFF,EndColorStr=#FFbcb8af);
 	${bs_sl}
 }
+.hook-b,
 .gallery .bottom nav a {
 	border-left:1px solid #a59e8e;
 	background-image:url(buttons_c.png);
@@ -21,6 +22,7 @@
 .no-rgba .gallery .bottom nav a.active {
 	background-color:#a59e8e;
 }
+.hook-b,
 .gallery .bottom .icon {
 	background-image:url(buttons_c.png);
 }
